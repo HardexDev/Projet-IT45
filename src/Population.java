@@ -1,16 +1,16 @@
 public class Population {
-    private Solution[] individus;
+    private Chromosome[] individus;
     private int size;
 
-    public Population(Solution[] individus, int size) {
+    public Population(Chromosome[] individus, int size) {
         this.individus = individus;
         this.size = size;
     }
 
     public Population(int taillePop, int tailleChromosome, int nbIntervenants) {
-        individus = new Solution[taillePop];
+        individus = new Chromosome[taillePop];
         for (int i=0; i<individus.length; i++) {
-            individus[i] = new Solution(tailleChromosome, nbIntervenants);
+            individus[i] = new Chromosome(tailleChromosome, nbIntervenants);
         }
     }
 
@@ -20,7 +20,7 @@ public class Population {
         }
     }
 
-    public Solution[] getIndividus() {
+    public Chromosome[] getIndividus() {
         return individus;
     }
 
