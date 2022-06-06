@@ -11,11 +11,15 @@ public class Project {
 
         GeneticAlgorithm ga = new GeneticAlgorithm(45, 3);
 
-        Chromosome c = new Chromosome(45, 4);
+        /*Chromosome c = new Chromosome(45, 4);
         c.afficher();
-        double fitness = c.evaluerPremierCritere(45);
+        c.evaluerPremierCritere(45);
 
-        System.out.println("Fitness = " + fitness);
+        System.out.println("Fitness = " + c.getFitness());*/
+
+        Chromosome best = ga.optimiser();
+        best.afficher();
+        System.out.println(best.getFitness());
 
         /*List<Mission> missions = ga.constructionMissions("src/instances/Missions.csv");
         System.out.println(Arrays.toString(missions.toArray()));

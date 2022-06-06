@@ -12,6 +12,7 @@ public class Chromosome implements Cloneable {
     private int[] genes;
     private int size;
     private int nbIntervenants;
+    private double fitness = 0.0;
 
     public Chromosome(int[] genes, int size, int nbIntervenants) {
         this.genes = genes;
@@ -65,7 +66,7 @@ public class Chromosome implements Cloneable {
 
     }
 
-    public double evaluerPremierCritere(int nombreMissions) {
+    public void evaluerPremierCritere(int nombreMissions) {
         double[][] distances = Utils.constructionDistance("src/instances/Distances.csv", nombreMissions);
         List<Mission> missions = Utils.constructionMissions("src/instances/Missions.csv");
         List<Intervenant> intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
@@ -80,11 +81,11 @@ public class Chromosome implements Cloneable {
 
         double constanteQuota = 100 / moyenneQuota;
 
-        System.out.println(constanteQuota);
+        // System.out.println(constanteQuota);
 
         double constanteHeuresSupTolerees = 100.0 / 10;
 
-        System.out.println(constanteHeuresSupTolerees);
+        // System.out.println(constanteHeuresSupTolerees);
 
         double totalDistances = 0;
         for (int i=0; i < distances.length-1; i++) {
@@ -93,14 +94,15 @@ public class Chromosome implements Cloneable {
 
         double moyenne = (totalDistances / (double) intervenants.size());
 
-        System.out.println(moyenne);
+        // System.out.println(moyenne);
 
         double constanteMoyenneDistances = 100.0 / (totalDistances / (double) intervenants.size());
 
-        System.out.println(constanteMoyenneDistances);
+        // System.out.println(constanteMoyenneDistances);
 
         double[] heuresTravaillees = new double[intervenants.size()];
 
+        // On ajoute les heures travaillées pendant les missions
         for (int i=0; i<genes.length; i++) {
             Mission mission = missions.get(i);
             heuresTravaillees[genes[i] - 1] += (mission.getHeure_fin() - mission.getHeure_debut()) / 60.0;
@@ -108,6 +110,7 @@ public class Chromosome implements Cloneable {
 
         double[] distancesParIntervenant = distancesParIntervenant(distances, missions);
 
+        // On ajoute le temps de trajet aux heures travaillées
         for (int i=0; i<distancesParIntervenant.length; i++) {
             heuresTravaillees[i] += (distancesParIntervenant[i]/1000) / 50;
         }
@@ -120,11 +123,11 @@ public class Chromosome implements Cloneable {
             heuresSup[i] = (heuresTravaillees[i] - intervenants.get(i).getQuota()) > 0 ? (heuresTravaillees[i] - intervenants.get(i).getQuota()) : 0;
         }
 
-        System.out.println("heures Travaillées : " + Arrays.toString(heuresTravaillees));
-        System.out.println("heures sup : " + Arrays.toString(heuresSup));
+        // System.out.println("heures Travaillées : " + Arrays.toString(heuresTravaillees));
+        // System.out.println("heures sup : " + Arrays.toString(heuresSup));
 
         double ecartTypeHeuresSup = Utils.calculerEcartType(heuresSup);
-        System.out.println("Ecart-type heures sup : " + ecartTypeHeuresSup);
+        // System.out.println("Ecart-type heures sup : " + ecartTypeHeuresSup);
 
         // Calculer l'écart-type des heures non-travaillées
         double[] heuresNonTravaillees = new double[intervenants.size()];
@@ -135,15 +138,15 @@ public class Chromosome implements Cloneable {
 
         double ecartTypeHeureNonTravaillees = Utils.calculerEcartType(heuresNonTravaillees);
 
-        System.out.println("Heures Non Travaillées : " + Arrays.toString(heuresNonTravaillees));
-        System.out.println("Ecart type heures non travaillées : " + ecartTypeHeureNonTravaillees);
+        // System.out.println("Heures Non Travaillées : " + Arrays.toString(heuresNonTravaillees));
+        // System.out.println("Ecart type heures non travaillées : " + ecartTypeHeureNonTravaillees);
 
         double ecartTypeDistances = Utils.calculerEcartType(distancesParIntervenant);
 
-        System.out.println("Distances par intervenant : " + Arrays.toString(distancesParIntervenant));
-        System.out.println("Ecart-type distances : " + ecartTypeDistances);
+        // System.out.println("Distances par intervenant : " + Arrays.toString(distancesParIntervenant));
+        // System.out.println("Ecart-type distances : " + ecartTypeDistances);
 
-        return (constanteQuota*ecartTypeHeureNonTravaillees + constanteHeuresSupTolerees*ecartTypeHeuresSup + constanteMoyenneDistances*ecartTypeDistances)/3.0;
+        fitness = (constanteQuota*ecartTypeHeureNonTravaillees + constanteHeuresSupTolerees*ecartTypeHeuresSup + constanteMoyenneDistances*ecartTypeDistances)/3.0;
     }
 
     private double[] distancesParIntervenant(double[][] distances, List<Mission> missions) {
@@ -225,8 +228,22 @@ public class Chromosome implements Cloneable {
         return new Chromosome(genes, size, nbIntervenants);
     }
 
+    public void copier(Chromosome chromosome) {
+        for (int i=0; i<size; i++) {
+            genes[i] = chromosome.getGenes()[i];
+        }
+    }
+
     public int[] copyGenes() {
         return Arrays.copyOf(genes, size);
+    }
+
+    public double getFitness() {
+        return fitness;
+    }
+
+    public void setFitness(double fitness) {
+        this.fitness = fitness;
     }
 
     @Override

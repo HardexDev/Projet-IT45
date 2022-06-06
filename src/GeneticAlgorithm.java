@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class GeneticAlgorithm {
     private int nbGenerations;
@@ -24,11 +25,11 @@ public class GeneticAlgorithm {
     private int nombreIntervenants;
 
     public GeneticAlgorithm(int nombreMissions, int nombreIntervenants) {
-        nbGenerations = 100000;
+        nbGenerations = 10000;
         taillePop = 100;
         tauxCroisement = 0.8;
-        tauxMutation = 0.5;
-        tailleChromosome = 50;
+        tauxMutation = 0.3;
+        tailleChromosome = nombreMissions;
         population = new Population(taillePop, tailleChromosome, 3);
         this.nombreIntervenants = nombreIntervenants;
         this.nombreMissions = nombreMissions;
@@ -36,13 +37,57 @@ public class GeneticAlgorithm {
 
     public Chromosome optimiser() {
         int amelioration = 0;
-        Chromosome c1 = new Chromosome(tailleChromosome, nombreIntervenants);
-        Chromosome c2 = new Chromosome(tailleChromosome, nombreIntervenants);
         Chromosome p1, p2;
 
+        for (Chromosome c : population.getIndividus()) {
+            c.evaluerPremierCritere(45);
+        }
 
+        population.ordonner();
 
-        return null;
+        double meilleurFitness = population.getIndividus()[0].getFitness();
+
+        for (int i=0; i<nbGenerations; i++) {
+
+            p1 = population.selectionRoulette();
+            p2 = population.selectionRoulette();
+
+            Random rand = new Random();
+//
+            Chromosome[] fils = croisement1X(p1, p2);
+            Chromosome c1 = fils[0].copier();
+            Chromosome c2 = fils[1].copier();
+//
+            // Mutation enfant 1 si au dessus du taux de mutation
+            if (rand.nextInt(1000)/1000.0 < tauxMutation) {
+                int geneA = rand.nextInt(nombreMissions-1);
+                int geneB = rand.nextInt(nombreMissions-1);
+                c1.echange2genes(geneA, geneB);
+            }
+//
+            // Mutation enfant 2 si au dessus du taux de mutation
+            if (rand.nextInt(1000)/1000.0 < tauxMutation) {
+                int geneA = rand.nextInt(nombreMissions-1);
+                int geneB = rand.nextInt(nombreMissions-1);
+                c2.echange2genes(geneA, geneB);
+            }
+//
+            c1.evaluerPremierCritere(nombreMissions);
+            c2.evaluerPremierCritere(nombreMissions);
+//
+            population.remplacementRoulette(c1);
+            population.remplacementRoulette(c2);
+//
+            population.reordonner();
+//
+            if (population.getIndividus()[population.getOrdre()[0]].getFitness() < meilleurFitness) {
+                meilleurFitness = population.getIndividus()[population.getOrdre()[0]].getFitness();
+                System.out.println("Amélioration de la meilleure solution à la génération " + i + " : " + meilleurFitness);
+                amelioration = i;
+            }
+        }
+
+        return population.getIndividus()[population.getOrdre()[0]];
     }
 
     public static Chromosome[] croisement1X(Chromosome p1, Chromosome p2) {
@@ -50,15 +95,11 @@ public class GeneticAlgorithm {
         Chromosome c1 = p1.clone();
         Chromosome c2 = p2.clone();
 
-        int point = Random.rand_int(nbGenes);
-
-        System.out.println("Point : " + point);
+        int point = Utils.rand_int(nbGenes);
 
         for (int i=point+1; i<nbGenes; i++) {
             c1.getGenes()[i] = p2.copyGenes()[i];
         }
-
-        System.out.println("p1 = " + Arrays.toString(p1.getGenes()));
 
         for (int i=point+1; i<nbGenes; i++) {
             c2.getGenes()[i] = p1.copyGenes()[i];
