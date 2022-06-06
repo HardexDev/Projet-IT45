@@ -2,6 +2,7 @@ import entities.Intervenant;
 import entities.Mission;
 import jdk.jshell.execution.Util;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +28,7 @@ public class Chromosome implements Cloneable {
     public Chromosome(int tailleChromosome, int nbIntervenants) {
         size = tailleChromosome;
         genes = new int[tailleChromosome];
+        this.nbIntervenants = nbIntervenants;
 
         Random rand = new Random();
 
@@ -43,9 +45,16 @@ public class Chromosome implements Cloneable {
 
     public void afficher() {
         for (int i=0; i<genes.length; i++) {
-            System.out.print(genes[i] + " ");
-            // System.out.printf("%.2f ", genesWithKeys[i]);
+            System.out.print(i + " ");
         }
+
+        System.out.println();
+
+        for (int i=0; i<genes.length; i++) {
+            System.out.print(genes[i] + " ");
+        }
+
+
         System.out.println();
     }
 
@@ -56,7 +65,7 @@ public class Chromosome implements Cloneable {
 
     }
 
-    public int evaluerPremierCritere(int nombreMissions) {
+    public double evaluerPremierCritere(int nombreMissions) {
         double[][] distances = Utils.constructionDistance("src/instances/Distances.csv", nombreMissions);
         List<Mission> missions = Utils.constructionMissions("src/instances/Missions.csv");
         List<Intervenant> intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
@@ -69,9 +78,9 @@ public class Chromosome implements Cloneable {
 
         double moyenneQuota = total/intervenants.size();
 
-        double constanceQuota = 100 / moyenneQuota;
+        double constanteQuota = 100 / moyenneQuota;
 
-        System.out.println(constanceQuota);
+        System.out.println(constanteQuota);
 
         double constanteHeuresSupTolerees = 100.0 / 10;
 
@@ -92,13 +101,20 @@ public class Chromosome implements Cloneable {
 
         double[] heuresTravaillees = new double[intervenants.size()];
 
-        // Calculer l'écart-type des heures supplémentaires
-        double[] heuresSup = new double[intervenants.size()];
-
         for (int i=0; i<genes.length; i++) {
             Mission mission = missions.get(i);
             heuresTravaillees[genes[i] - 1] += (mission.getHeure_fin() - mission.getHeure_debut()) / 60.0;
         }
+
+        double[] distancesParIntervenant = distancesParIntervenant(distances, missions);
+
+        for (int i=0; i<distancesParIntervenant.length; i++) {
+            heuresTravaillees[i] += (distancesParIntervenant[i]/1000) / 50;
+        }
+
+        // Calculer l'écart-type des heures supplémentaires
+        double[] heuresSup = new double[intervenants.size()];
+
 
         for (int i=0; i<heuresTravaillees.length; i++) {
             heuresSup[i] = (heuresTravaillees[i] - intervenants.get(i).getQuota()) > 0 ? (heuresTravaillees[i] - intervenants.get(i).getQuota()) : 0;
@@ -122,41 +138,79 @@ public class Chromosome implements Cloneable {
         System.out.println("Heures Non Travaillées : " + Arrays.toString(heuresNonTravaillees));
         System.out.println("Ecart type heures non travaillées : " + ecartTypeHeureNonTravaillees);
 
-        distancesParIntervenant(distances, missions);
+        double ecartTypeDistances = Utils.calculerEcartType(distancesParIntervenant);
 
+        System.out.println("Distances par intervenant : " + Arrays.toString(distancesParIntervenant));
+        System.out.println("Ecart-type distances : " + ecartTypeDistances);
 
-        return 0;
+        return (constanteQuota*ecartTypeHeureNonTravaillees + constanteHeuresSupTolerees*ecartTypeHeuresSup + constanteMoyenneDistances*ecartTypeDistances)/3.0;
     }
 
     private double[] distancesParIntervenant(double[][] distances, List<Mission> missions) {
         double[] res = new double[nbIntervenants];
-        ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = new ArrayList<>();
+
+        ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(missions);
 
         for (int i=0; i<nbIntervenants; i++) {
-            ordreMissions.add(new ArrayList<>());
+            for (int j=0; j<5; j++) {
+                if (ordreMissions.get(i).get(j).size() > 0) {
+                    res[i] += distances[0][ordreMissions.get(i).get(j).get(0) + 1];
+                    for (int k=0; k<ordreMissions.get(i).get(j).size()-1; k++) {
+                        res[i] += distances[ordreMissions.get(i).get(j).get(k)][ordreMissions.get(i).get(j).get(k+1)];
+                    }
+
+                    res[i] += distances[ordreMissions.get(i).get(j).get(ordreMissions.get(i).get(j).size() - 1) + 1][0];
+                }
+            }
         }
 
+        return res;
+    }
+
+    private ArrayList<ArrayList<ArrayList<Integer>>> ordreMission(List<Mission> missions) {
+        ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = new ArrayList<>();
+
+        // Initialisation de l'ArrayList
         for (int i=0; i<nbIntervenants; i++) {
-            ordreMissions.get(i).add(new ArrayList<>());
+            ArrayList<ArrayList<Integer>> listeIntervenants = new ArrayList<>();
+            ordreMissions.add(listeIntervenants);
+            for (int j=0; j<5; j++) {
+                listeIntervenants.add(new ArrayList<>());
+            }
+        }
+
+        // On insère les missions pour chaque intervenant
+        for (int i=0; i<nbIntervenants; i++) {
             int currentDay = 1;
 
             for (int j=0; j<genes.length; j++) {
 
                 if (genes[j] == i+1) {
-                    if (currentDay == missions.get(j).getJour()) {
-                        ordreMissions.get(i).get(currentDay-1).add(j);
-                    } else {
+                    if (currentDay != missions.get(j).getJour()) {
                         currentDay = missions.get(j).getJour();
-                        ordreMissions.get(i).add(new ArrayList<>());
+                    }
+
+                    ordreMissions.get(i).get(currentDay-1).add(j);
+                }
+            }
+        }
+
+        // On trie chaque mission pour chaque intervenant en fonction de l'heure de début de la mission (Bubble Sort)
+        for (int i=0; i<nbIntervenants; i++) {
+            for (int j=0; j<5; j++) {
+                for (int k=0; k<ordreMissions.get(i).get(j).size() - 1; k++) {
+                    for (int l=0; l<ordreMissions.get(i).get(j).size() - k - 1; l++) {
+                        if (missions.get(l+1).getHeure_debut() < missions.get(l).getHeure_debut()) {
+                            int temp = ordreMissions.get(i).get(j).get(l);
+                            ordreMissions.get(i).get(j).set(l, ordreMissions.get(i).get(j).get(l+1));
+                            ordreMissions.get(i).get(j).set(l+1, temp);
+                        }
                     }
                 }
             }
         }
 
-        System.out.println(ordreMissions.size());
-
-        return res;
-
+        return ordreMissions;
     }
 
     public int getSize() {
