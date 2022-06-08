@@ -6,13 +6,16 @@ import java.util.List;
 
 public class Project {
     public static void main(String[] args) {
-        Population population = new Population(5, 40, 4);
-        population.afficher();
+        /*Population population = new Population(5, 40, 4);
+        population.afficher();*/
 
         GeneticAlgorithm ga = new GeneticAlgorithm(45, 3);
 
         Chromosome c = new Chromosome(45, 4);
-        c.evaluerPremierCritere(45);
+        c.afficher();
+        double fitness = c.evaluerPremierCritere(45);
+
+        System.out.println("Fitness = " + fitness);
 
         /*List<Mission> missions = ga.constructionMissions("src/instances/Missions.csv");
         System.out.println(Arrays.toString(missions.toArray()));
