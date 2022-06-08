@@ -395,7 +395,7 @@ public class Chromosome implements Cloneable {
         for (int i=0; i<nbIntervenants; i++) {
             for (int j = 0; j < 5; j++) {
                 ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
-                if((missions.get(currentListeMissions.get(0)).getHeure_debut()-missions.get(currentListeMissions.get(currentListeMissions.size()-1)).getHeure_fin()>720)
+                if(missions.get(currentListeMissions.get(0)).getHeure_debut()-missions.get(currentListeMissions.get(currentListeMissions.size()-1)).getHeure_fin()>720)
                 {
                     penalite+=5;
                 }
