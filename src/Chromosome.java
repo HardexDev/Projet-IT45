@@ -1,6 +1,7 @@
 import entities.Intervenant;
 import entities.Mission;
 
+import java.security.spec.RSAOtherPrimeInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -290,14 +291,12 @@ public class Chromosome implements Cloneable {
             }
         }
 
-
         ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(this.genes, missions);
-
         for (int i=0; i<nbIntervenants; i++) {
             for (int j=0; j<5; j++) {
                 ArrayList<Integer> currentListeMissions = ordreMissions.get(i).get(j);
                 for (int k=0; k<currentListeMissions.size()-1; k++) {
-                    if (missions.get(currentListeMissions.get(k)).getHeure_fin() >= missions.get(k+1).getHeure_debut()) {
+                    if (missions.get(currentListeMissions.get(k)).getHeure_fin() >= missions.get(currentListeMissions.get(k+1)).getHeure_debut()) {
                         return false;
                     }
                 }
@@ -350,36 +349,74 @@ public class Chromosome implements Cloneable {
         }
     }
 
-    public int solutionValide(){
+    public int contrainteSouple(){
+        int penalite=0;
         int missionIndex, intervenantIndex;
+        double[][] distances = Utils.constructionDistance("src/instances/Distances.csv", size);
         List<Mission> missions = Utils.constructionMissions("src/instances/Missions.csv");
         List<Intervenant> intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
-
+        ArrayList<ArrayList<ArrayList<Integer>>> missionParJour = ordreMission(this.genes, missions);
         //**********************contrainte 1****************************
         //verifier si une case vide ?
-        //**********************contrainte 2****************************
-        for (int i=0;i<size;i++)
-        {
-            missionIndex=i;
-            for (int j=0; i<intervenants.size();i++)
-            if (intervenants.get(i).getId()==genes[i] )
-            {
-                intervenantIndex=j;
-                if (intervenants.get(intervenantIndex).getCompetence() != missions.get(missionIndex).getCompetence())
-                    return -1;
+
+
+        //**********************contrainte 5**************************** 1h pause midi
+
+        //**********************contrainte 6**************************** 8 heures max par jour !!!!! mi-temps a ajouter
+
+        for (int i=0; i<nbIntervenants; i++) {
+            int heureTot;
+            for (int j=0; j<5; j++) {
+                ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
+                heureTot=0;
+                for (int k=0; k<currentListeMissions.size()-1; k++) {
+                    heureTot+=missions.get(currentListeMissions.get(k)).getHeure_fin()-missions.get(currentListeMissions.get(k)).getHeure_debut();
+                    if (heureTot>480) {
+                        penalite+=7;
+                    }
+                }
+            }
+        }
+        //**********************contrainte 7**************************** heure sup   !!!!! mi-temps a ajouter
+        for (int i=0; i<nbIntervenants; i++) {
+            int heureTot;
+            for (int j=0; j<5; j++) {
+                ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
+                heureTot=0;
+                for (int k=0; k<currentListeMissions.size()-1; k++) {
+                    heureTot+=missions.get(currentListeMissions.get(k)).getHeure_fin()-missions.get(currentListeMissions.get(k)).getHeure_debut();
+                    if (heureTot-480>2*60) {   //480 pour 8h par jour
+                        penalite+=5;
+                    }
+                }
+            }
+        }
+        //**********************contrainte 8**************************** amplitude (pas plus de 12h)*
+        for (int i=0; i<nbIntervenants; i++) {
+            for (int j = 0; j < 5; j++) {
+                ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
+                if((missions.get(currentListeMissions.get(0)).getHeure_debut()-missions.get(currentListeMissions.get(currentListeMissions.size()-1)).getHeure_fin()>720)
+                {
+                    penalite+=5;
+                }
+
             }
         }
 
-        //**********************contrainte 3****************************
-        //**********************contrainte 4****************************
-        // evident
-        //**********************contrainte 5****************************
+        //**********************contrainte 9**************************** temps pour se deplacer 50km/h
 
-        //**********************contrainte 6****************************
 
-        //**********************contrainte 7****************************
-        //**********************contrainte 8****************************
-        //**********************contrainte 9****************************
-    return 0;
+        for (int i=0; i<nbIntervenants; i++) {
+            for (int j=0; j<5; j++) {
+                ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
+                System.out.println(Arrays.deepToString(currentListeMissions.toArray()));
+                for (int k=0; k<currentListeMissions.size()-1; k++) {
+                    if (missions.get(currentListeMissions.get(k+1)).getHeure_debut()-missions.get(currentListeMissions.get(k)).getHeure_fin() <= distances[missions.get(currentListeMissions.get(k+1)).getId()+1][missions.get(currentListeMissions.get(k)).getId()+1] /(6*5000)) {
+                        penalite+=3;
+                    }
+                }
+            }
+        }
+    return penalite;
     }
 }
