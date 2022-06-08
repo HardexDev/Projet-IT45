@@ -1,6 +1,5 @@
 import entities.Intervenant;
 import entities.Mission;
-import jdk.jshell.execution.Util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -186,5 +185,38 @@ public class Chromosome implements Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
+    }
+
+    public int solutionValide(){
+        int missionIndex, intervenantIndex;
+        List<Mission> missions = Utils.constructionMissions("src/instances/Missions.csv");
+        List<Intervenant> intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
+
+        //**********************contrainte 1****************************
+        //verifier si une case vide ?
+        //**********************contrainte 2****************************
+        for (int i=0;i<size;i++)
+        {
+            missionIndex=i;
+            for (int j=0; i<intervenants.size();i++)
+            if (intervenants.get(i).getId()==genes[i] )
+            {
+                intervenantIndex=j;
+                if (intervenants.get(intervenantIndex).getCompetence() != missions.get(missionIndex).getCompetence())
+                    return -1;
+            }
+        }
+
+        //**********************contrainte 3****************************
+        //**********************contrainte 4****************************
+        // evident
+        //**********************contrainte 5****************************
+
+        //**********************contrainte 6****************************
+
+        //**********************contrainte 7****************************
+        //**********************contrainte 8****************************
+        //**********************contrainte 9****************************
+    return 0;
     }
 }
