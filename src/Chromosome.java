@@ -1,8 +1,6 @@
 import entities.Intervenant;
 import entities.Mission;
-import jdk.jshell.execution.Util;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,13 +29,7 @@ public class Chromosome implements Cloneable {
         genes = new int[tailleChromosome];
         this.nbIntervenants = nbIntervenants;
 
-        Random rand = new Random();
-
-        for (int i=0; i<genes.length; i++) {
-            int randIntervenant = rand.nextInt(nbIntervenants) + 1;
-
-            genes[i] = randIntervenant;
-        }
+        genes = contruireSolutionValide();
     }
 
     public float evaluateFitnessEmployee() {
@@ -46,17 +38,29 @@ public class Chromosome implements Cloneable {
 
     public void afficher() {
         for (int i=0; i<genes.length; i++) {
-            System.out.print(i + " ");
-        }
-
-        System.out.println();
-
-        for (int i=0; i<genes.length; i++) {
             System.out.print(genes[i] + " ");
         }
 
 
         System.out.println();
+    }
+
+    public void afficherDetails() {
+        List<Mission> missions = Utils.constructionMissions("src/instances/Missions.csv");
+        ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(this.genes, missions);
+
+        System.out.println("Affichage des tournées de la semaine en détail : ");
+        for (int i=0; i<nbIntervenants; i++) {
+            System.out.println("Intervenant " + (i+1) + " :");
+            for (int j=0; j<5; j++) {
+                System.out.print("Jour " + (j+1) + " : ");
+                ArrayList<Integer> currentListeMissions = ordreMissions.get(i).get(j);
+                for (int k=0; k<currentListeMissions.size(); k++) {
+                    System.out.print(currentListeMissions.get(k)+1 + " ");
+                }
+                System.out.println();
+            }
+        }
     }
 
     public void echange2genes(int indexA, int indexB) {
@@ -66,8 +70,8 @@ public class Chromosome implements Cloneable {
 
     }
 
-    public void evaluerPremierCritere(int nombreMissions) {
-        double[][] distances = Utils.constructionDistance("src/instances/Distances.csv", nombreMissions);
+    public void evaluerPremierCritere() {
+        double[][] distances = Utils.constructionDistance("src/instances/Distances.csv", size);
         List<Mission> missions = Utils.constructionMissions("src/instances/Missions.csv");
         List<Intervenant> intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
 
@@ -152,7 +156,7 @@ public class Chromosome implements Cloneable {
     private double[] distancesParIntervenant(double[][] distances, List<Mission> missions) {
         double[] res = new double[nbIntervenants];
 
-        ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(missions);
+        ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(this.genes, missions);
 
         for (int i=0; i<nbIntervenants; i++) {
             for (int j=0; j<5; j++) {
@@ -170,7 +174,7 @@ public class Chromosome implements Cloneable {
         return res;
     }
 
-    private ArrayList<ArrayList<ArrayList<Integer>>> ordreMission(List<Mission> missions) {
+    private ArrayList<ArrayList<ArrayList<Integer>>> ordreMission(int[] arr, List<Mission> missions) {
         ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = new ArrayList<>();
 
         // Initialisation de l'ArrayList
@@ -186,9 +190,9 @@ public class Chromosome implements Cloneable {
         for (int i=0; i<nbIntervenants; i++) {
             int currentDay = 1;
 
-            for (int j=0; j<genes.length; j++) {
+            for (int j=0; j<arr.length; j++) {
 
-                if (genes[j] == i+1) {
+                if (arr[j] == i+1) {
                     if (currentDay != missions.get(j).getJour()) {
                         currentDay = missions.get(j).getJour();
                     }
@@ -214,6 +218,93 @@ public class Chromosome implements Cloneable {
         }
 
         return ordreMissions;
+    }
+
+    private int[] contruireSolutionValide() {
+        int[] res = new int[size];
+
+        List<Mission> missions = Utils.constructionMissions("src/instances/Missions.csv");
+        List<Intervenant> intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
+
+        Random rand = new Random();
+
+        for (int i=0; i<res.length; i++) {
+            int randIntervenant = rand.nextInt(nbIntervenants) + 1;
+            boolean stop = false;
+            while (!stop) {
+                if (missions.get(i).getCompetence() != intervenants.get(randIntervenant - 1).getCompetence()) {
+                    randIntervenant = rand.nextInt(nbIntervenants) + 1;
+                } else {
+                    stop = true;
+                    ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(res, missions);
+                    ArrayList<Integer> currentListeMissions = ordreMissions.get(randIntervenant-1).get(missions.get(i).getJour()-1);
+                    if (currentListeMissions.size() >= 1) {
+                        int derniereMission = currentListeMissions.get(currentListeMissions.size()-1);
+                        if (missions.get(derniereMission).getHeure_fin() >= missions.get(i).getHeure_debut()) {
+                            stop = false;
+                            randIntervenant = rand.nextInt(nbIntervenants) + 1;
+                        } else {
+                            res[i] = randIntervenant;
+                        }
+                    } else {
+                        res[i] = randIntervenant;
+                    }
+
+                }
+            }
+
+        }
+
+/*        System.out.println(Arrays.toString(res));
+
+        ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(res, missions);
+
+        for (int i=0; i<nbIntervenants; i++) {
+            for (int j=0; j<5; j++) {
+                ArrayList<Integer> currentListeMissions = ordreMissions.get(i).get(j);
+                for (int k=0; k<currentListeMissions.size()-1; k++) {
+                    while (missions.get(currentListeMissions.get(k)).getHeure_fin() >= missions.get(currentListeMissions.get(k+1)).getHeure_debut()) {
+                        System.out.println("Here");
+                        res[currentListeMissions.get(k)] = Utils.rand_in_bounds(i+1, nbIntervenants) + 1;
+                        System.out.println(res[currentListeMissions.get(k)]);
+                        ordreMissions = ordreMission(res, missions);
+                        currentListeMissions = ordreMissions.get(i).get(j);
+                        k=0;
+                    }
+                }
+            }
+        }*/
+
+        return res;
+    }
+
+    public boolean estValide() {
+        double[][] distances = Utils.constructionDistance("src/instances/Distances.csv", size);
+        List<Mission> missions = Utils.constructionMissions("src/instances/Missions.csv");
+        List<Intervenant> intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
+
+        // Vérifier que les missions sont bien assignées à des intervenants ayant la même compétence
+        for (int i=0; i<genes.length; i++) {
+            if (missions.get(i).getCompetence() != intervenants.get(genes[i] - 1).getCompetence()) {
+                return false;
+            }
+        }
+
+
+        ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(this.genes, missions);
+
+        for (int i=0; i<nbIntervenants; i++) {
+            for (int j=0; j<5; j++) {
+                ArrayList<Integer> currentListeMissions = ordreMissions.get(i).get(j);
+                for (int k=0; k<currentListeMissions.size()-1; k++) {
+                    if (missions.get(currentListeMissions.get(k)).getHeure_fin() >= missions.get(k+1).getHeure_debut()) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     public int getSize() {

@@ -30,7 +30,7 @@ public class GeneticAlgorithm {
         tauxCroisement = 0.8;
         tauxMutation = 0.3;
         tailleChromosome = nombreMissions;
-        population = new Population(taillePop, tailleChromosome, 3);
+        population = new Population(taillePop, tailleChromosome, nombreIntervenants);
         this.nombreIntervenants = nombreIntervenants;
         this.nombreMissions = nombreMissions;
     }
@@ -40,7 +40,7 @@ public class GeneticAlgorithm {
         Chromosome p1, p2;
 
         for (Chromosome c : population.getIndividus()) {
-            c.evaluerPremierCritere(45);
+            c.evaluerPremierCritere();
         }
 
         population.ordonner();
@@ -72,9 +72,9 @@ public class GeneticAlgorithm {
                 c2.echange2genes(geneA, geneB);
             }
 //
-            c1.evaluerPremierCritere(nombreMissions);
-            c2.evaluerPremierCritere(nombreMissions);
-//
+            c1.evaluerPremierCritere();
+            c2.evaluerPremierCritere();
+//e
             population.remplacementRoulette(c1);
             population.remplacementRoulette(c2);
 //

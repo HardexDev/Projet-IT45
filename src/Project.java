@@ -9,17 +9,33 @@ public class Project {
         /*Population population = new Population(5, 40, 4);
         population.afficher();*/
 
-        GeneticAlgorithm ga = new GeneticAlgorithm(45, 3);
+        GeneticAlgorithm ga = new GeneticAlgorithm(45, 4);
 
-        /*Chromosome c = new Chromosome(45, 4);
+        Chromosome c = new Chromosome(45, 4);
         c.afficher();
-        c.evaluerPremierCritere(45);
+        System.out.println("Solution valide : " + c.estValide());
+        c.afficherDetails();
 
-        System.out.println("Fitness = " + c.getFitness());*/
+        c.evaluerPremierCritere();
+//
+        System.out.println("Fitness = " + c.getFitness());
 
-        Chromosome best = ga.optimiser();
+
+//        while (!c.estValide()) {
+//            c = new Chromosome(45, 4);
+//            c.afficher();
+//            System.out.println("Solution valide : " + c.estValide());
+//
+//            c.evaluerPremierCritere();
+//
+//            System.out.println("Fitness = " + c.getFitness());
+//        }
+
+
+
+        /*Chromosome best = ga.optimiser();
         best.afficher();
-        System.out.println(best.getFitness());
+        System.out.println(best.getFitness());*/
 
         /*List<Mission> missions = ga.constructionMissions("src/instances/Missions.csv");
         System.out.println(Arrays.toString(missions.toArray()));
