@@ -7,22 +7,32 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+
 public class Chromosome implements Cloneable {
     private int[] genes;
     private int size;
     private int nbIntervenants;
     private double fitness = 0.0;
+    private double[][] distances;
+    private List<Mission> missions;
+    private List<Intervenant> intervenants;
 
     public Chromosome(int[] genes, int size, int nbIntervenants) {
         this.genes = genes;
         this.size = size;
         this.nbIntervenants = nbIntervenants;
+        distances = Utils.constructionDistance("src/instances/Distances.csv", size);
+        missions = Utils.constructionMissions("src/instances/Missions.csv");
+        intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
     }
 
     public Chromosome(Chromosome c) {
         genes = c.genes;
         size = c.size;
         nbIntervenants = c.nbIntervenants;
+        distances = Utils.constructionDistance("src/instances/Distances.csv", size);
+        missions = Utils.constructionMissions("src/instances/Missions.csv");
+        intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
     }
 
     public Chromosome(int tailleChromosome, int nbIntervenants) {
@@ -31,6 +41,9 @@ public class Chromosome implements Cloneable {
         this.nbIntervenants = nbIntervenants;
 
         genes = contruireSolutionValide();
+        distances = Utils.constructionDistance("src/instances/Distances.csv", size);
+        missions = Utils.constructionMissions("src/instances/Missions.csv");
+        intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
     }
 
     public float evaluateFitnessEmployee() {
@@ -47,7 +60,6 @@ public class Chromosome implements Cloneable {
     }
 
     public void afficherDetails() {
-        List<Mission> missions = Utils.constructionMissions("src/instances/Missions.csv");
         ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(this.genes, missions);
 
         System.out.println("Affichage des tournées de la semaine en détail : ");
@@ -72,9 +84,6 @@ public class Chromosome implements Cloneable {
     }
 
     public void evaluerPremierCritere() {
-        double[][] distances = Utils.constructionDistance("src/instances/Distances.csv", size);
-        List<Mission> missions = Utils.constructionMissions("src/instances/Missions.csv");
-        List<Intervenant> intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
 
         // Calcul des constantes
         double total = 0;
@@ -96,6 +105,7 @@ public class Chromosome implements Cloneable {
         for (int i=0; i < distances.length-1; i++) {
             totalDistances += distances[0][i+1] + distances[i+1][0];
         }
+
 
         double moyenne = (totalDistances / (double) intervenants.size());
 
@@ -225,9 +235,6 @@ public class Chromosome implements Cloneable {
     private int[] contruireSolutionValide() {
         int[] res = new int[size];
 
-        List<Mission> missions = Utils.constructionMissions("src/instances/Missions.csv");
-        List<Intervenant> intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
-
         Random rand = new Random();
 
         for (int i=0; i<res.length; i++) {
@@ -281,9 +288,6 @@ public class Chromosome implements Cloneable {
     }
 
     public boolean estValide() {
-        double[][] distances = Utils.constructionDistance("src/instances/Distances.csv", size);
-        List<Mission> missions = Utils.constructionMissions("src/instances/Missions.csv");
-        List<Intervenant> intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
 
         // Vérifier que les missions sont bien assignées à des intervenants ayant la même compétence
         for (int i=0; i<genes.length; i++) {
@@ -353,12 +357,7 @@ public class Chromosome implements Cloneable {
     public int contrainteSouple(){
         int penalite=0;
         int missionIndex, intervenantIndex;
-        double[][] distances = Utils.constructionDistance("src/instances/Distances.csv", size);
-        List<Mission> missions = Utils.constructionMissions("src/instances/Missions.csv");
-        List<Intervenant> intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
         ArrayList<ArrayList<ArrayList<Integer>>> missionParJour = ordreMission(this.genes, missions);
-        //**********************contrainte 1****************************
-        //verifier si une case vide ?
 
 
         //**********************contrainte 5**************************** 1h pause midi
