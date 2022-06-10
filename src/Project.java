@@ -31,10 +31,17 @@ public class Project {
 //
 //            System.out.println("Fitness = " + c.getFitness());
 //        }
+
         Chromosome best = ga.optimiser();
         best.afficherDetails();
-        System.out.println(best.getFitness());
+        /*Chromosome[] meilleuresSolutions = new Chromosome[50];
+        for (int i=0; i<50; i++) {
+            Chromosome best = ga.optimiser();
+            best.afficherDetails();
+            meilleuresSolutions[i] = best;
+        }
 
+        System.out.println(Arrays.toString(meilleuresSolutions));*/
         /*List<Mission> missions = ga.constructionMissions("src/instances/Missions.csv");
         System.out.println(Arrays.toString(missions.toArray()));
 

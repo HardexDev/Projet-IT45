@@ -40,10 +40,11 @@ public class Chromosome implements Cloneable {
         genes = new int[tailleChromosome];
         this.nbIntervenants = nbIntervenants;
 
-        genes = contruireSolutionValide();
         distances = Utils.constructionDistance("src/instances/Distances.csv", size);
         missions = Utils.constructionMissions("src/instances/Missions.csv");
         intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
+
+        genes = contruireSolutionValide();
     }
 
     public float evaluateFitnessEmployee() {

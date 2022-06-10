@@ -26,7 +26,7 @@ public class GeneticAlgorithm {
     private int nombreIntervenants;
 
     public GeneticAlgorithm(int nombreMissions, int nombreIntervenants) {
-        nbGenerations = 10000;
+        nbGenerations = 3000;
         taillePop = 100;
         tauxCroisement = 0.8;
         tauxMutation = 0.3;
@@ -64,15 +64,15 @@ public class GeneticAlgorithm {
 
             if (!c1.estValide()) {
                 c1 = new Chromosome(tailleChromosome, nombreIntervenants);
-                System.out.println("Enfant 1 non valide à la génération " + i);
-                nbEnfantsNonValides++;
+                // System.out.println("Enfant 1 non valide à la génération " + i);
+                // nbEnfantsNonValides++;
             } else {
                 nbEnfantsValides++;
             }
 
             if (!c2.estValide()) {
                 c2 = new Chromosome(tailleChromosome, nombreIntervenants);
-                System.out.println("Enfant 2 non valide à la génération " + i);
+                // System.out.println("Enfant 2 non valide à la génération " + i);
                 nbEnfantsNonValides++;
             } else {
                 nbEnfantsValides++;
