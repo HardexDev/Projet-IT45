@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,6 +38,9 @@ public class GeneticAlgorithm {
 
     public Chromosome optimiser() {
         int amelioration = 0;
+        int nbEnfantsNonValides = 0;
+        int nbEnfantsValides = 0;
+
         Chromosome p1, p2;
 
         for (Chromosome c : population.getIndividus()) {
@@ -57,12 +61,32 @@ public class GeneticAlgorithm {
             Chromosome[] fils = croisement1X(p1, p2);
             Chromosome c1 = fils[0].copier();
             Chromosome c2 = fils[1].copier();
+
+            if (!c1.estValide()) {
+                c1 = new Chromosome(tailleChromosome, nombreIntervenants);
+                System.out.println("Enfant 1 non valide à la génération " + i);
+                nbEnfantsNonValides++;
+            } else {
+                nbEnfantsValides++;
+            }
+
+            if (!c2.estValide()) {
+                c2 = new Chromosome(tailleChromosome, nombreIntervenants);
+                System.out.println("Enfant 2 non valide à la génération " + i);
+                nbEnfantsNonValides++;
+            } else {
+                nbEnfantsValides++;
+            }
 //
             // Mutation enfant 1 si au dessus du taux de mutation
             if (rand.nextInt(1000)/1000.0 < tauxMutation) {
                 int geneA = rand.nextInt(nombreMissions-1);
                 int geneB = rand.nextInt(nombreMissions-1);
                 c1.echange2genes(geneA, geneB);
+
+                if (!c1.estValide()) {
+                    c1 = new Chromosome(tailleChromosome, nombreIntervenants);
+                }
             }
 //
             // Mutation enfant 2 si au dessus du taux de mutation
@@ -70,6 +94,10 @@ public class GeneticAlgorithm {
                 int geneA = rand.nextInt(nombreMissions-1);
                 int geneB = rand.nextInt(nombreMissions-1);
                 c2.echange2genes(geneA, geneB);
+
+                if (!c2.estValide()) {
+                    c2 = new Chromosome(tailleChromosome, nombreIntervenants);
+                }
             }
 //
             c1.evaluerPremierCritere();
@@ -82,10 +110,13 @@ public class GeneticAlgorithm {
 //
             if (population.getIndividus()[population.getOrdre()[0]].getFitness() < meilleurFitness) {
                 meilleurFitness = population.getIndividus()[population.getOrdre()[0]].getFitness();
-                System.out.println("Amélioration de la meilleure solution à la génération " + i + " : " + meilleurFitness);
+                System.out.println("Amélioration de la meilleure solution à la génération " + i + " : " + meilleurFitness + " pénalités " + population.getIndividus()[population.getOrdre()[0]].contrainteSouple());
                 amelioration = i;
             }
         }
+
+        System.out.println("NB Enfants valides : " + nbEnfantsValides);
+        System.out.println("NB Enfants non valides : " + nbEnfantsNonValides);
 
         return population.getIndividus()[population.getOrdre()[0]];
     }

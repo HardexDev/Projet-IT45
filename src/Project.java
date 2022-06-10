@@ -11,7 +11,7 @@ public class Project {
 
         GeneticAlgorithm ga = new GeneticAlgorithm(45, 4);
 
-        Chromosome c = new Chromosome(45, 4);
+        /*Chromosome c = new Chromosome(45, 4);
         c.afficher();
         System.out.println("Solution valide : " + c.estValide());
         c.afficherDetails();
@@ -19,6 +19,7 @@ public class Project {
         c.evaluerPremierCritere();
 //
         System.out.println("Fitness = " + c.getFitness());
+        System.out.println("Pénalités à ajouter = " + c.contrainteSouple());*/
 
 
 //        while (!c.estValide()) {
@@ -30,12 +31,9 @@ public class Project {
 //
 //            System.out.println("Fitness = " + c.getFitness());
 //        }
-
-
-
-        /*Chromosome best = ga.optimiser();
-        best.afficher();
-        System.out.println(best.getFitness());*/
+        Chromosome best = ga.optimiser();
+        best.afficherDetails();
+        System.out.println(best.getFitness());
 
         /*List<Mission> missions = ga.constructionMissions("src/instances/Missions.csv");
         System.out.println(Arrays.toString(missions.toArray()));

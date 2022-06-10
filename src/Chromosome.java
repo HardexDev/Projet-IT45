@@ -151,7 +151,8 @@ public class Chromosome implements Cloneable {
         // System.out.println("Distances par intervenant : " + Arrays.toString(distancesParIntervenant));
         // System.out.println("Ecart-type distances : " + ecartTypeDistances);
 
-        fitness = (constanteQuota*ecartTypeHeureNonTravaillees + constanteHeuresSupTolerees*ecartTypeHeuresSup + constanteMoyenneDistances*ecartTypeDistances)/3.0;
+        // On met à jour le fitness de la solution et on ajoute les éventuelles pénalités des contraintes souples
+        fitness = ((constanteQuota*ecartTypeHeureNonTravaillees + constanteHeuresSupTolerees*ecartTypeHeuresSup + constanteMoyenneDistances*ecartTypeDistances)/3.0) + contrainteSouple();
     }
 
     private double[] distancesParIntervenant(double[][] distances, List<Mission> missions) {
@@ -361,41 +362,132 @@ public class Chromosome implements Cloneable {
 
 
         //**********************contrainte 5**************************** 1h pause midi
+        for (int i=0; i<nbIntervenants; i++) {
+            for (int j=0; j<5; j++) {
+                boolean tempsSuffisantAMidi = false;
+                ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
+                for (int k=0; k<currentListeMissions.size() - 1; k++) {
+                    if (missions.get(currentListeMissions.get(k)).getHeure_debut() >= 720 && missions.get(currentListeMissions.get(k)).getHeure_debut() <= 840
+                         || missions.get(currentListeMissions.get(k)).getHeure_fin() >= 720 && missions.get(currentListeMissions.get(k)).getHeure_fin() <= 840   ) {
+                        if (missions.get(currentListeMissions.get(k)).getHeure_debut() - 720 >= 60) {
+                            tempsSuffisantAMidi = true;
+                            break;
+                        }
 
-        //**********************contrainte 6**************************** 8 heures max par jour !!!!! mi-temps a ajouter
+                        if (missions.get(currentListeMissions.get(k)).getHeure_fin() - 720 >= 60) {
+                            tempsSuffisantAMidi = true;
+                            break;
+                        }
+
+                        if (missions.get(currentListeMissions.get(k+1)).getHeure_debut() <= 840) {
+                            if (missions.get(currentListeMissions.get(k+1)).getHeure_debut() - missions.get(currentListeMissions.get(k)).getHeure_fin() >= 60) {
+                                tempsSuffisantAMidi = true;
+                                break;
+                            }
+                        } else {
+                            if (840 - missions.get(currentListeMissions.get(k)).getHeure_fin() >= 60) {
+                                tempsSuffisantAMidi = true;
+                                break;
+                            }
+                        }
+                    } else if (missions.get(currentListeMissions.get(k+1)).getHeure_debut() >= 720 && missions.get(currentListeMissions.get(k+1)).getHeure_debut() <= 840 ||
+                            missions.get(currentListeMissions.get(k+1)).getHeure_fin() >= 720 && missions.get(currentListeMissions.get(k+1)).getHeure_fin() <= 840) {
+                            if (missions.get(currentListeMissions.get(k+1)).getHeure_debut() - 720 >= 60) {
+                                tempsSuffisantAMidi = true;
+                                break;
+                            }
+
+                            if (missions.get(currentListeMissions.get(k+1)).getHeure_fin() - 720 >= 60) {
+                                tempsSuffisantAMidi = true;
+                                break;
+                            }
+
+                            if (840 - missions.get(currentListeMissions.get(k+1)).getHeure_fin() >= 60) {
+                                tempsSuffisantAMidi = true;
+                                break;
+                            }
+                    } else {
+                        tempsSuffisantAMidi = true;
+                        break;
+                    }
+                }
+
+                if (!tempsSuffisantAMidi) {
+                    // System.out.println("Intervenant " + (i+1) + " Jour " + (j+1) + " temps pas suffisant le midi");
+                    penalite += 5;
+                }
+
+            }
+        }
+
+        //**********************contrainte 6**************************** 8 ou 6 heures max par jour
 
         for (int i=0; i<nbIntervenants; i++) {
             int heureTot;
+            int heureMaxParJour = intervenants.get(i).getQuota() == 24 ? 360 : 480;
             for (int j=0; j<5; j++) {
                 ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
                 heureTot=0;
-                for (int k=0; k<currentListeMissions.size()-1; k++) {
-                    heureTot+=missions.get(currentListeMissions.get(k)).getHeure_fin()-missions.get(currentListeMissions.get(k)).getHeure_debut();
-                    if (heureTot>480) {
+                if (!currentListeMissions.isEmpty()) {
+                    // Première mission au SESSAD
+                    heureTot += distances[0][currentListeMissions.get(0) + 1] / (50*16.667);
+                    // Temps de travail de chaque mission
+                    for (int k=0; k<currentListeMissions.size(); k++) {
+                        heureTot+=missions.get(currentListeMissions.get(k)).getHeure_fin()-missions.get(currentListeMissions.get(k)).getHeure_debut();
+                    }
+                    // Dernière mission au SESSAD (Fin de journée)
+                    heureTot += distances[currentListeMissions.get(currentListeMissions.size() - 1) + 1][0] / (50*16.667);
+                    if (heureTot>heureMaxParJour) {
+                        // System.out.println("Contrainte 6");
                         penalite+=7;
                     }
                 }
+
             }
         }
-        //**********************contrainte 7**************************** heure sup   !!!!! mi-temps a ajouter
+        //**********************contrainte 7**************************** 2h sup max/jour et 10h sup max/semaine
+
+        // On vérifie si on dépasse pas 2h d'heure sup par jour
         for (int i=0; i<nbIntervenants; i++) {
-            int heureTot;
+            double heureTot;
+            int heuresMaxParJour = intervenants.get(i).getQuota() == 24 ? 360 : 480;
+            double heureTotSemaine = 0;
             for (int j=0; j<5; j++) {
                 ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
                 heureTot=0;
-                for (int k=0; k<currentListeMissions.size()-1; k++) {
-                    heureTot+=missions.get(currentListeMissions.get(k)).getHeure_fin()-missions.get(currentListeMissions.get(k)).getHeure_debut();
-                    if (heureTot-480>2*60) {   //480 pour 8h par jour
+                if (!currentListeMissions.isEmpty()) {
+                    heureTot += distances[0][currentListeMissions.get(0) + 1] / (50*16.667); // Sessad à première mission
+                    // Distance entre chaque mission
+                    for (int k=0; k<currentListeMissions.size(); k++) {
+                        heureTot+=missions.get(currentListeMissions.get(k)).getHeure_fin()-missions.get(currentListeMissions.get(k)).getHeure_debut();
+                    }
+                    // Dernière mission au SESSAD
+                    heureTot += distances[currentListeMissions.get(currentListeMissions.size() - 1) + 1][0] / (50*16.667);
+
+                    heureTotSemaine += heureTot;
+
+                    // System.out.println("Heure tot pour intervenant " + i + " jour " + j + " = " + heureTot);
+
+                    if (heureTot-heuresMaxParJour>120) {   //480 pour 8h par jour
+                        // System.out.println("Contrainte 7");
                         penalite+=5;
                     }
                 }
+
+            }
+            // System.out.println("Heure tot semaine pour intervenant " + i + " = " + heureTotSemaine);
+            // Si les heures sup de toute la semaine dépassent 10h alors on pénalise
+            if (heureTotSemaine-(intervenants.get(i).getQuota()*60) > 600) {
+                // System.out.println("Contrainte 7");
+                penalite+=5;
             }
         }
+
         //**********************contrainte 8**************************** amplitude (pas plus de 12h)*
         for (int i=0; i<nbIntervenants; i++) {
             for (int j = 0; j < 5; j++) {
                 ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
-                if(missions.get(currentListeMissions.get(0)).getHeure_debut()-missions.get(currentListeMissions.get(currentListeMissions.size()-1)).getHeure_fin()>720)
+                if(missions.get(currentListeMissions.get(currentListeMissions.size()-1)).getHeure_fin() - missions.get(currentListeMissions.get(0)).getHeure_debut()>720)
                 {
                     penalite+=5;
                 }
@@ -403,20 +495,20 @@ public class Chromosome implements Cloneable {
             }
         }
 
-        //**********************contrainte 9**************************** temps pour se deplacer 50km/h
+        //********************** contrainte 9 **************************** temps pour se deplacer 50km/h
 
 
         for (int i=0; i<nbIntervenants; i++) {
             for (int j=0; j<5; j++) {
                 ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
-                System.out.println(Arrays.deepToString(currentListeMissions.toArray()));
                 for (int k=0; k<currentListeMissions.size()-1; k++) {
-                    if (missions.get(currentListeMissions.get(k+1)).getHeure_debut()-missions.get(currentListeMissions.get(k)).getHeure_fin() <= distances[missions.get(currentListeMissions.get(k+1)).getId()+1][missions.get(currentListeMissions.get(k)).getId()+1] /(6*5000)) {
+                    if (missions.get(currentListeMissions.get(k+1)).getHeure_debut() - missions.get(currentListeMissions.get(k)).getHeure_fin() <= (distances[currentListeMissions.get(k) + 1][currentListeMissions.get(k+1) + 1] /(50*16.667))) {
                         penalite+=3;
                     }
                 }
             }
         }
-    return penalite;
+
+        return penalite;
     }
 }
