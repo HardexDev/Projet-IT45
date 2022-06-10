@@ -184,8 +184,9 @@ public class Chromosome implements Cloneable {
     public void evaluerTroisiemeCritere(){
         int sumWOH=0;
         double Beta=100/(45*60);
-        double moyenneK;
+        double moyenneK, moyD,maxD=-1;
         double[] heuresTravaillees = new double[intervenants.size()];
+
 
         // On ajoute les heures travaillées pendant les missions
         for (int i=0; i<genes.length; i++) {
@@ -216,8 +217,20 @@ public class Chromosome implements Cloneable {
             totalDistances += distances[0][i+1] + distances[i+1][0];
         }
 
+        double SUM=0;
+        for(int i=0;i<distancesParIntervenant.length;i++)
+        {
+            if(distancesParIntervenant[i]>maxD)
+            {
+                maxD=distancesParIntervenant[i];
+            }
+            SUM+=distancesParIntervenant[i];
+        }
+
+        moyD=SUM/distancesParIntervenant.length;
 
         moyenneK = (totalDistances / (double) intervenants.size());
+        fitness3=(Beta*sumWOH+moyenneK*moyD+moyenneK*maxD)/3;
     }
 
     private double[] distancesParIntervenant(double[][] distances, List<Mission> missions) {
