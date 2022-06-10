@@ -16,6 +16,8 @@ public class Chromosome implements Cloneable {
     private double[][] distances;
     private List<Mission> missions;
     private List<Intervenant> intervenants;
+    private double fitness2 = 0.0;
+    private double fitness3 = 0.0;
 
     public Chromosome(int[] genes, int size, int nbIntervenants) {
         this.genes = genes;
@@ -164,6 +166,70 @@ public class Chromosome implements Cloneable {
 
         // On met à jour le fitness de la solution et on ajoute les éventuelles pénalités des contraintes souples
         fitness = ((constanteQuota*ecartTypeHeureNonTravaillees + constanteHeuresSupTolerees*ecartTypeHeuresSup + constanteMoyenneDistances*ecartTypeDistances)/3.0) + contrainteSouple();
+    }
+
+    public void evaluerDeuxiemeCritere() {
+        double alpha=100/size;
+        int compteur=0;
+        for(int i=0; i<size;i++)
+        {
+            if (missions.get(i).getSpecialite()!=intervenants.get(genes[i] - 1).getSpecialite())
+            {
+                compteur++;
+            }
+        }
+        fitness2=alpha*compteur;
+    }
+    public void evaluerTroisiemeCritere(){
+        int sumWOH=0;
+        double Beta=100/(45*60);
+        double moyenneK, moyD,maxD=-1;
+        double[] heuresTravaillees = new double[intervenants.size()];
+
+
+        // On ajoute les heures travaillées pendant les missions
+        for (int i=0; i<genes.length; i++) {
+            Mission mission = missions.get(i);
+            heuresTravaillees[genes[i] - 1] += (mission.getHeure_fin() - mission.getHeure_debut()) / 60.0;
+        }
+
+        double[] distancesParIntervenant = distancesParIntervenant(distances, missions);
+
+        // On ajoute le temps de trajet aux heures travaillées
+        for (int i=0; i<distancesParIntervenant.length; i++) {
+            heuresTravaillees[i] += (distancesParIntervenant[i]/1000) / 50;
+        }
+
+        // Calculer l'écart-type des heures supplémentaires
+        double[] heuresSup = new double[intervenants.size()];
+
+
+        for (int i=0; i<heuresTravaillees.length; i++) {
+            heuresSup[i] = (heuresTravaillees[i] - intervenants.get(i).getQuota()) > 0 ? (heuresTravaillees[i] - intervenants.get(i).getQuota()) : 0;
+        }
+        for(int i=0;i<nbIntervenants;i++)
+        {
+            sumWOH+=(intervenants.get(i).getQuota()-heuresTravaillees[i])+ (heuresTravaillees[i]-intervenants.get(i).getQuota());
+        }
+        double totalDistances = 0;
+        for (int i=0; i < distances.length-1; i++) {
+            totalDistances += distances[0][i+1] + distances[i+1][0];
+        }
+
+        double SUM=0;
+        for(int i=0;i<distancesParIntervenant.length;i++)
+        {
+            if(distancesParIntervenant[i]>maxD)
+            {
+                maxD=distancesParIntervenant[i];
+            }
+            SUM+=distancesParIntervenant[i];
+        }
+
+        moyD=SUM/distancesParIntervenant.length;
+
+        moyenneK = (totalDistances / (double) intervenants.size());
+        fitness3=(Beta*sumWOH+moyenneK*moyD+moyenneK*maxD)/3;
     }
 
     private double[] distancesParIntervenant(double[][] distances, List<Mission> missions) {
