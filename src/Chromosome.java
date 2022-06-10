@@ -16,6 +16,7 @@ public class Chromosome implements Cloneable {
     private double[][] distances;
     private List<Mission> missions;
     private List<Intervenant> intervenants;
+    private double fitness2 = 0.0;
 
     public Chromosome(int[] genes, int size, int nbIntervenants) {
         this.genes = genes;
@@ -40,10 +41,12 @@ public class Chromosome implements Cloneable {
         genes = new int[tailleChromosome];
         this.nbIntervenants = nbIntervenants;
 
-        genes = contruireSolutionValide();
         distances = Utils.constructionDistance("src/instances/Distances.csv", size);
         missions = Utils.constructionMissions("src/instances/Missions.csv");
         intervenants = Utils.constructionIntervenants("src/instances/Intervenants.csv");
+
+        genes = contruireSolutionValide();
+
     }
 
     public float evaluateFitnessEmployee() {
@@ -163,6 +166,19 @@ public class Chromosome implements Cloneable {
 
         // On met à jour le fitness de la solution et on ajoute les éventuelles pénalités des contraintes souples
         fitness = ((constanteQuota*ecartTypeHeureNonTravaillees + constanteHeuresSupTolerees*ecartTypeHeuresSup + constanteMoyenneDistances*ecartTypeDistances)/3.0) + contrainteSouple();
+    }
+
+    public void evaluerDeuxiemeCritere() {
+        double alpha=100/size;
+        int compteur=0;
+        for(int i=0; i<size;i++)
+        {
+            if (missions.get(i).getSpecialite()!=intervenants.get(genes[i] - 1).getSpecialite())
+            {
+                compteur++;
+            }
+        }
+        fitness2=alpha*compteur;
     }
 
     private double[] distancesParIntervenant(double[][] distances, List<Mission> missions) {
