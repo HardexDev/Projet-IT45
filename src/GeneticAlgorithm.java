@@ -118,6 +118,7 @@ public class GeneticAlgorithm {
         System.out.println("NB Enfants valides : " + nbEnfantsValides);
         System.out.println("NB Enfants non valides : " + nbEnfantsNonValides);
 
+        population.afficher();
         return population.getIndividus()[population.getOrdre()[0]];
     }
 

@@ -55,7 +55,7 @@ public class Chromosome implements Cloneable {
     }
 
     public void afficher() {
-        for (int i=0; i<genes.length; i++) {
+        for (int i=0; i<genes.length; ++i) {
             System.out.print(genes[i] + " ");
         }
 
@@ -67,9 +67,9 @@ public class Chromosome implements Cloneable {
         ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(this.genes, missions);
 
         System.out.println("Affichage des tournées de la semaine en détail : ");
-        for (int i=0; i<nbIntervenants; i++) {
+        for (int i=0; i<nbIntervenants; ++i) {
             System.out.println("Intervenant " + (i+1) + " :");
-            for (int j=0; j<5; j++) {
+            for (int j=0; j<5; ++j) {
                 System.out.print("Jour " + (j+1) + " : ");
                 ArrayList<Integer> currentListeMissions = ordreMissions.get(i).get(j);
                 for (int k=0; k<currentListeMissions.size(); k++) {
@@ -91,7 +91,7 @@ public class Chromosome implements Cloneable {
 
         // Calcul des constantes
         double total = 0;
-        for (int i=0; i<intervenants.size(); i++) {
+        for (int i=0; i<intervenants.size(); ++i) {
             total += intervenants.get(i).getQuota();
         }
 
@@ -106,7 +106,7 @@ public class Chromosome implements Cloneable {
         // System.out.println(constanteHeuresSupTolerees);
 
         double totalDistances = 0;
-        for (int i=0; i < distances.length-1; i++) {
+        for (int i=0; i < distances.length-1; ++i) {
             totalDistances += distances[0][i+1] + distances[i+1][0];
         }
 
@@ -122,7 +122,7 @@ public class Chromosome implements Cloneable {
         double[] heuresTravaillees = new double[intervenants.size()];
 
         // On ajoute les heures travaillées pendant les missions
-        for (int i=0; i<genes.length; i++) {
+        for (int i=0; i<genes.length; ++i) {
             Mission mission = missions.get(i);
             heuresTravaillees[genes[i] - 1] += (mission.getHeure_fin() - mission.getHeure_debut()) / 60.0;
         }
@@ -130,7 +130,7 @@ public class Chromosome implements Cloneable {
         double[] distancesParIntervenant = distancesParIntervenant(distances, missions);
 
         // On ajoute le temps de trajet aux heures travaillées
-        for (int i=0; i<distancesParIntervenant.length; i++) {
+        for (int i=0; i<distancesParIntervenant.length; ++i) {
             heuresTravaillees[i] += (distancesParIntervenant[i]/1000) / 50;
         }
 
@@ -138,7 +138,7 @@ public class Chromosome implements Cloneable {
         double[] heuresSup = new double[intervenants.size()];
 
 
-        for (int i=0; i<heuresTravaillees.length; i++) {
+        for (int i=0; i<heuresTravaillees.length; ++i) {
             heuresSup[i] = (heuresTravaillees[i] - intervenants.get(i).getQuota()) > 0 ? (heuresTravaillees[i] - intervenants.get(i).getQuota()) : 0;
         }
 
@@ -151,7 +151,7 @@ public class Chromosome implements Cloneable {
         // Calculer l'écart-type des heures non-travaillées
         double[] heuresNonTravaillees = new double[intervenants.size()];
 
-        for (int i=0; i<heuresTravaillees.length; i++) {
+        for (int i=0; i<heuresTravaillees.length; ++i) {
             heuresNonTravaillees[i] = (intervenants.get(i).getQuota() - heuresTravaillees[i]) > 0 ? (intervenants.get(i).getQuota() - heuresTravaillees[i]) : 0;
         }
 
@@ -172,7 +172,7 @@ public class Chromosome implements Cloneable {
     public void evaluerDeuxiemeCritere() {
         double alpha=100/size;
         int compteur=0;
-        for(int i=0; i<size;i++)
+        for(int i=0; i<size;++i)
         {
             if (missions.get(i).getSpecialite()!=intervenants.get(genes[i] - 1).getSpecialite())
             {
@@ -189,7 +189,7 @@ public class Chromosome implements Cloneable {
 
 
         // On ajoute les heures travaillées pendant les missions
-        for (int i=0; i<genes.length; i++) {
+        for (int i=0; i<genes.length; ++i) {
             Mission mission = missions.get(i);
             heuresTravaillees[genes[i] - 1] += (mission.getHeure_fin() - mission.getHeure_debut()) / 60.0;
         }
@@ -197,7 +197,7 @@ public class Chromosome implements Cloneable {
         double[] distancesParIntervenant = distancesParIntervenant(distances, missions);
 
         // On ajoute le temps de trajet aux heures travaillées
-        for (int i=0; i<distancesParIntervenant.length; i++) {
+        for (int i=0; i<distancesParIntervenant.length; ++i) {
             heuresTravaillees[i] += (distancesParIntervenant[i]/1000) / 50;
         }
 
@@ -205,20 +205,20 @@ public class Chromosome implements Cloneable {
         double[] heuresSup = new double[intervenants.size()];
 
 
-        for (int i=0; i<heuresTravaillees.length; i++) {
+        for (int i=0; i<heuresTravaillees.length; ++i) {
             heuresSup[i] = (heuresTravaillees[i] - intervenants.get(i).getQuota()) > 0 ? (heuresTravaillees[i] - intervenants.get(i).getQuota()) : 0;
         }
-        for(int i=0;i<nbIntervenants;i++)
+        for(int i=0;i<nbIntervenants;++i)
         {
             sumWOH+=(intervenants.get(i).getQuota()-heuresTravaillees[i])+ (heuresTravaillees[i]-intervenants.get(i).getQuota());
         }
         double totalDistances = 0;
-        for (int i=0; i < distances.length-1; i++) {
+        for (int i=0; i < distances.length-1; ++i) {
             totalDistances += distances[0][i+1] + distances[i+1][0];
         }
 
         double SUM=0;
-        for(int i=0;i<distancesParIntervenant.length;i++)
+        for(int i=0;i<distancesParIntervenant.length;++i)
         {
             if(distancesParIntervenant[i]>maxD)
             {
@@ -238,8 +238,8 @@ public class Chromosome implements Cloneable {
 
         ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(this.genes, missions);
 
-        for (int i=0; i<nbIntervenants; i++) {
-            for (int j=0; j<5; j++) {
+        for (int i=0; i<nbIntervenants; ++i) {
+            for (int j=0; j<5; ++j) {
                 if (ordreMissions.get(i).get(j).size() > 0) {
                     res[i] += distances[0][ordreMissions.get(i).get(j).get(0) + 1];
                     for (int k=0; k<ordreMissions.get(i).get(j).size()-1; k++) {
@@ -258,19 +258,19 @@ public class Chromosome implements Cloneable {
         ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = new ArrayList<>();
 
         // Initialisation de l'ArrayList
-        for (int i=0; i<nbIntervenants; i++) {
+        for (int i=0; i<nbIntervenants; ++i) {
             ArrayList<ArrayList<Integer>> listeIntervenants = new ArrayList<>();
             ordreMissions.add(listeIntervenants);
-            for (int j=0; j<5; j++) {
+            for (int j=0; j<5; ++j) {
                 listeIntervenants.add(new ArrayList<>());
             }
         }
 
         // On insère les missions pour chaque intervenant
-        for (int i=0; i<nbIntervenants; i++) {
+        for (int i=0; i<nbIntervenants; ++i) {
             int currentDay = 1;
 
-            for (int j=0; j<arr.length; j++) {
+            for (int j=0; j<arr.length; ++j) {
 
                 if (arr[j] == i+1) {
                     if (currentDay != missions.get(j).getJour()) {
@@ -283,8 +283,8 @@ public class Chromosome implements Cloneable {
         }
 
         // On trie chaque mission pour chaque intervenant en fonction de l'heure de début de la mission (Bubble Sort)
-        for (int i=0; i<nbIntervenants; i++) {
-            for (int j=0; j<5; j++) {
+        for (int i=0; i<nbIntervenants; ++i) {
+            for (int j=0; j<5; ++j) {
                 for (int k=0; k<ordreMissions.get(i).get(j).size() - 1; k++) {
                     for (int l=0; l<ordreMissions.get(i).get(j).size() - k - 1; l++) {
                         if (missions.get(l+1).getHeure_debut() < missions.get(l).getHeure_debut()) {
@@ -305,7 +305,7 @@ public class Chromosome implements Cloneable {
 
         Random rand = new Random();
 
-        for (int i=0; i<res.length; i++) {
+        for (int i=0; i<res.length; ++i) {
             int randIntervenant = rand.nextInt(nbIntervenants) + 1;
             boolean stop = false;
             while (!stop) {
@@ -336,8 +336,8 @@ public class Chromosome implements Cloneable {
 
         ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(res, missions);
 
-        for (int i=0; i<nbIntervenants; i++) {
-            for (int j=0; j<5; j++) {
+        for (int i=0; i<nbIntervenants; ++i) {
+            for (int j=0; j<5; ++j) {
                 ArrayList<Integer> currentListeMissions = ordreMissions.get(i).get(j);
                 for (int k=0; k<currentListeMissions.size()-1; k++) {
                     while (missions.get(currentListeMissions.get(k)).getHeure_fin() >= missions.get(currentListeMissions.get(k+1)).getHeure_debut()) {
@@ -358,15 +358,15 @@ public class Chromosome implements Cloneable {
     public boolean estValide() {
 
         // Vérifier que les missions sont bien assignées à des intervenants ayant la même compétence
-        for (int i=0; i<genes.length; i++) {
+        for (int i=0; i<genes.length; ++i) {
             if (missions.get(i).getCompetence() != intervenants.get(genes[i] - 1).getCompetence()) {
                 return false;
             }
         }
 
         ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(this.genes, missions);
-        for (int i=0; i<nbIntervenants; i++) {
-            for (int j=0; j<5; j++) {
+        for (int i=0; i<nbIntervenants; ++i) {
+            for (int j=0; j<5; ++j) {
                 ArrayList<Integer> currentListeMissions = ordreMissions.get(i).get(j);
                 for (int k=0; k<currentListeMissions.size()-1; k++) {
                     if (missions.get(currentListeMissions.get(k)).getHeure_fin() >= missions.get(currentListeMissions.get(k+1)).getHeure_debut()) {
@@ -392,7 +392,7 @@ public class Chromosome implements Cloneable {
     }
 
     public void copier(Chromosome chromosome) {
-        for (int i=0; i<size; i++) {
+        for (int i=0; i<size; ++i) {
             genes[i] = chromosome.getGenes()[i];
         }
     }
@@ -429,8 +429,8 @@ public class Chromosome implements Cloneable {
 
 
         //**********************contrainte 5**************************** 1h pause midi
-        for (int i=0; i<nbIntervenants; i++) {
-            for (int j=0; j<5; j++) {
+        for (int i=0; i<nbIntervenants; ++i) {
+            for (int j=0; j<5; ++j) {
                 boolean tempsSuffisantAMidi = false;
                 ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
                 for (int k=0; k<currentListeMissions.size() - 1; k++) {
@@ -489,10 +489,10 @@ public class Chromosome implements Cloneable {
 
         //**********************contrainte 6**************************** 8 ou 6 heures max par jour
 
-        for (int i=0; i<nbIntervenants; i++) {
+        for (int i=0; i<nbIntervenants; ++i) {
             int heureTot;
             int heureMaxParJour = intervenants.get(i).getQuota() == 24 ? 360 : 480;
-            for (int j=0; j<5; j++) {
+            for (int j=0; j<5; ++j) {
                 ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
                 heureTot=0;
                 if (!currentListeMissions.isEmpty()) {
@@ -515,11 +515,11 @@ public class Chromosome implements Cloneable {
         //**********************contrainte 7**************************** 2h sup max/jour et 10h sup max/semaine
 
         // On vérifie si on dépasse pas 2h d'heure sup par jour
-        for (int i=0; i<nbIntervenants; i++) {
+        for (int i=0; i<nbIntervenants; ++i) {
             double heureTot;
             int heuresMaxParJour = intervenants.get(i).getQuota() == 24 ? 360 : 480;
             double heureTotSemaine = 0;
-            for (int j=0; j<5; j++) {
+            for (int j=0; j<5; ++j) {
                 ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
                 heureTot=0;
                 if (!currentListeMissions.isEmpty()) {
@@ -551,8 +551,8 @@ public class Chromosome implements Cloneable {
         }
 
         //**********************contrainte 8**************************** amplitude (pas plus de 12h)*
-        for (int i=0; i<nbIntervenants; i++) {
-            for (int j = 0; j < 5; j++) {
+        for (int i=0; i<nbIntervenants; ++i) {
+            for (int j = 0; j < 5; ++j) {
                 ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
                 if(missions.get(currentListeMissions.get(currentListeMissions.size()-1)).getHeure_fin() - missions.get(currentListeMissions.get(0)).getHeure_debut()>720)
                 {
@@ -565,8 +565,8 @@ public class Chromosome implements Cloneable {
         //********************** contrainte 9 **************************** temps pour se deplacer 50km/h
 
 
-        for (int i=0; i<nbIntervenants; i++) {
-            for (int j=0; j<5; j++) {
+        for (int i=0; i<nbIntervenants; ++i) {
+            for (int j=0; j<5; ++j) {
                 ArrayList<Integer> currentListeMissions = missionParJour.get(i).get(j);
                 for (int k=0; k<currentListeMissions.size()-1; k++) {
                     if (missions.get(currentListeMissions.get(k+1)).getHeure_debut() - missions.get(currentListeMissions.get(k)).getHeure_fin() <= (distances[currentListeMissions.get(k) + 1][currentListeMissions.get(k+1) + 1] /(50*16.667))) {

@@ -8,8 +8,10 @@ public class Project {
     public static void main(String[] args) {
         /*Population population = new Population(5, 40, 4);
         population.afficher();*/
+        double start = System.currentTimeMillis();
 
         GeneticAlgorithm ga = new GeneticAlgorithm(45, 4);
+
 
         /*Chromosome c = new Chromosome(45, 4);
         c.afficher();
@@ -34,7 +36,9 @@ public class Project {
         Chromosome best = ga.optimiser();
         best.afficherDetails();
         System.out.println(best.getFitness());
-
+        double stop = System.currentTimeMillis();
+        double diff = stop - start;
+        System.out.println("Temps exex i++ : " + diff);
         /*List<Mission> missions = ga.constructionMissions("src/instances/Missions.csv");
         System.out.println(Arrays.toString(missions.toArray()));
 
