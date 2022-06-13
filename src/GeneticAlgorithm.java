@@ -1,39 +1,41 @@
-import entities.Competence;
 import entities.Intervenant;
 import entities.Mission;
-import entities.Specialite;
+import java.util.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.SQLOutput;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-
+/**
+ * Classe principale qui implémente l'algorithme génétique
+ */
 public class GeneticAlgorithm {
-    private int nbGenerations;
-    private int taillePop;
-    private double tauxCroisement;
+    private int nbGenerations; // Nombre de génération
+    private int taillePop; // Taille de la population
+    private double tauxCroisement; //
     private double tauxMutation;
     private int tailleChromosome;
     private Population population;
     private int nombreMissions;
     private int nombreIntervenants;
+    private long tempsExecution;
 
-    public GeneticAlgorithm(int nombreMissions, int nombreIntervenants) {
-        nbGenerations = 3000;
+    private double[][] distances;
+    private List<Mission> missions;
+    private List<Intervenant> intervenants;
+
+    public GeneticAlgorithm(int nombreMissions, int nombreIntervenants, int tempsExecution) {
+        nbGenerations = 150000;
         taillePop = 100;
         tauxCroisement = 0.8;
         tauxMutation = 0.3;
         tailleChromosome = nombreMissions;
-        population = new Population(taillePop, tailleChromosome, nombreIntervenants);
         this.nombreIntervenants = nombreIntervenants;
         this.nombreMissions = nombreMissions;
+        this.tempsExecution = tempsExecution;
+
+        String basePath = System.getProperty("user.dir").contains("src") ? System.getProperty("user.dir") + "/instances/" + tailleChromosome + "-" + nombreIntervenants: System.getProperty("user.dir") + "/src/instances/" + tailleChromosome + "-" + nombreIntervenants;
+        distances = Utils.constructionDistance( basePath + "/Distances.csv", tailleChromosome);
+        missions = Utils.constructionMissions(basePath + "/Missions.csv");
+        intervenants = Utils.constructionIntervenants(basePath + "/Intervenants.csv");
+
+        population = new Population(taillePop, tailleChromosome, nombreIntervenants, missions, intervenants, distances);
     }
 
     public Chromosome optimiser() {
@@ -41,100 +43,175 @@ public class GeneticAlgorithm {
         int nbEnfantsNonValides = 0;
         int nbEnfantsValides = 0;
 
+        List<Chromosome> solutionsPremierCritere = new ArrayList<>();
+        List<Chromosome> solutionsDeuxiemeCritere = new ArrayList<>();
+        List<Chromosome> solutionsTroisiemeCritere = new ArrayList<>();
+
         Chromosome p1, p2;
 
-        for (Chromosome c : population.getIndividus()) {
-            c.evaluerPremierCritere();
-        }
+        long t = System.currentTimeMillis();
+        long end = t + tempsExecution;
 
-        population.ordonner();
+        Random rand = new Random();
 
-        double meilleurFitness = population.getIndividus()[0].getFitness();
-
-        for (int i=0; i<nbGenerations; i++) {
-
-            p1 = population.selectionRoulette();
-            p2 = population.selectionRoulette();
-
-            Random rand = new Random();
-//
-            Chromosome[] fils = croisement1X(p1, p2);
-            Chromosome c1 = fils[0].copier();
-            Chromosome c2 = fils[1].copier();
-
-            if (!c1.estValide()) {
-                c1 = new Chromosome(tailleChromosome, nombreIntervenants);
-                // System.out.println("Enfant 1 non valide à la génération " + i);
-                // nbEnfantsNonValides++;
-            } else {
-                nbEnfantsValides++;
+        int g = 0;
+        while (System.currentTimeMillis() < end) {
+            for (Chromosome c : population.getIndividus()) {
+                c.evaluerPremierCritere();
             }
 
-            if (!c2.estValide()) {
-                c2 = new Chromosome(tailleChromosome, nombreIntervenants);
-                // System.out.println("Enfant 2 non valide à la génération " + i);
-                nbEnfantsNonValides++;
-            } else {
-                nbEnfantsValides++;
-            }
-//
-            // Mutation enfant 1 si au dessus du taux de mutation
-            if (rand.nextInt(1000)/1000.0 < tauxMutation) {
-                int geneA = rand.nextInt(nombreMissions-1);
-                int geneB = rand.nextInt(nombreMissions-1);
-                c1.echange2genes(geneA, geneB);
+            population.ordonner();
+
+            double meilleurFitness = population.getIndividus()[0].getFitness();
+
+            System.out.println("Lancement n°" + g);
+            for (int i=0; i<nbGenerations; i++) {
+                p1 = population.selectionRoulette();
+                p2 = population.selectionRoulette();
+
+                Chromosome[] fils = croisement1X(p1, p2);
+                Chromosome c1 = fils[0].copier();
+                c1.updateOrdreMissions();
+                Chromosome c2 = fils[1].copier();
+                c2.updateOrdreMissions();
 
                 if (!c1.estValide()) {
-                    c1 = new Chromosome(tailleChromosome, nombreIntervenants);
+                    c1 = new Chromosome(tailleChromosome, nombreIntervenants, missions, intervenants, distances);
                 }
-            }
-//
-            // Mutation enfant 2 si au dessus du taux de mutation
-            if (rand.nextInt(1000)/1000.0 < tauxMutation) {
-                int geneA = rand.nextInt(nombreMissions-1);
-                int geneB = rand.nextInt(nombreMissions-1);
-                c2.echange2genes(geneA, geneB);
 
                 if (!c2.estValide()) {
-                    c2 = new Chromosome(tailleChromosome, nombreIntervenants);
+                    c2 = new Chromosome(tailleChromosome, nombreIntervenants, missions, intervenants, distances);
+                }
+
+                // Mutation enfant 1 si au dessus du taux de mutation
+                if (rand.nextInt(1000)/1000.0 < tauxMutation) {
+                    int geneA = rand.nextInt(nombreMissions-1);
+                    int geneB = rand.nextInt(nombreMissions-1);
+                    c1.echange2genes(geneA, geneB);
+
+                    if (!c1.estValide()) {
+                        c1 = new Chromosome(tailleChromosome, nombreIntervenants, missions, intervenants, distances);
+                    }
+                }
+
+                // Mutation enfant 2 si au dessus du taux de mutation
+                if (rand.nextInt(1000)/1000.0 < tauxMutation) {
+                    int geneA = rand.nextInt(nombreMissions-1);
+                    int geneB = rand.nextInt(nombreMissions-1);
+                    c2.echange2genes(geneA, geneB);
+                    if (!c2.estValide()) {
+                        c2 = new Chromosome(tailleChromosome, nombreIntervenants, missions, intervenants, distances);
+                    }
+                }
+
+                c1.evaluerPremierCritere();
+                c2.evaluerPremierCritere();
+
+                population.remplacementRoulette(c1);
+                population.remplacementRoulette(c2);
+
+                population.reordonner();
+
+                if (population.getIndividus()[population.getOrdre()[0]].getFitness() < meilleurFitness) {
+                    meilleurFitness = population.getIndividus()[population.getOrdre()[0]].getFitness();
+                    System.out.println("Amélioration de la meilleure solution à la génération " + i + " : " + meilleurFitness + " pénalités " + population.getIndividus()[population.getOrdre()[0]].contrainteSouple());
+                    amelioration = i;
                 }
             }
-//
-            c1.evaluerPremierCritere();
-            c2.evaluerPremierCritere();
-//e
-            population.remplacementRoulette(c1);
-            population.remplacementRoulette(c2);
-//
-            population.reordonner();
-//
-            if (population.getIndividus()[population.getOrdre()[0]].getFitness() < meilleurFitness) {
-                meilleurFitness = population.getIndividus()[population.getOrdre()[0]].getFitness();
-                System.out.println("Amélioration de la meilleure solution à la génération " + i + " : " + meilleurFitness + " pénalités " + population.getIndividus()[population.getOrdre()[0]].contrainteSouple());
-                amelioration = i;
-            }
+
+            g++;
+
+            solutionsPremierCritere.add(population.getIndividus()[population.getOrdre()[0]]);
+            population = new Population(taillePop, tailleChromosome, nombreIntervenants, missions, intervenants, distances);
+
         }
 
-        System.out.println("NB Enfants valides : " + nbEnfantsValides);
-        System.out.println("NB Enfants non valides : " + nbEnfantsNonValides);
 
-        return population.getIndividus()[population.getOrdre()[0]];
+        // Trier les solutions du critère 1 par fitness
+        solutionsPremierCritere.sort((o1, o2) -> {
+            if (o1.getFitness() < o2.getFitness()) {
+                return -1;
+            } else if (o1.getFitness() == o2.getFitness()) {
+                return 0;
+            }
+
+            return 1;
+        });
+
+        // On récupère les 10% des meilleures solutions du premier critère
+        List<Chromosome> meilleuresSolutionsPremierCritere = new ArrayList<>();
+        double bound = solutionsPremierCritere.size() * 0.3;
+        for (int i=0; i<bound; ++i) {
+            meilleuresSolutionsPremierCritere.add(solutionsPremierCritere.get(i));
+        }
+
+        // On évalue les meilleures solution du critère 1 avec le critère 2
+        for (Chromosome c : meilleuresSolutionsPremierCritere) {
+            c.evaluerDeuxiemeCritere();
+            solutionsDeuxiemeCritere.add(c);
+        }
+
+        // Trier les solutions du critère 2 par fitness
+        solutionsDeuxiemeCritere.sort((o1, o2) -> {
+                if (o1.getFitness() < o2.getFitness()) {
+                    return -1;
+                } else if (o1.getFitness() == o2.getFitness()) {
+                    return 0;
+                }
+
+                return 1;
+        });
+
+        // On récupère les 10% des meilleures solutions du deuxième critère
+        List<Chromosome> meilleuresSolutionsDeuxiemeCritere = new ArrayList<>();
+        double bound2 = solutionsDeuxiemeCritere.size() * 0.5;
+        for (int i=0; i<bound2; ++i) {
+            meilleuresSolutionsDeuxiemeCritere.add(solutionsDeuxiemeCritere.get(i));
+        }
+
+
+
+        // On évalue les meilleures solutions du critère 2 avec le critère 3
+        for (Chromosome c : meilleuresSolutionsDeuxiemeCritere) {
+            c.evaluerTroisiemeCritere();
+            solutionsTroisiemeCritere.add(c);
+        }
+
+        // Trier les solutions du critère 3 par fitness
+        solutionsTroisiemeCritere.sort((o1, o2) -> {
+            if (o1.getFitness() < o2.getFitness()) {
+                return -1;
+            } else if (o1.getFitness() == o2.getFitness()) {
+                return 0;
+            }
+
+            return 1;
+        });
+
+        return solutionsTroisiemeCritere.get(0);
     }
+
 
     public static Chromosome[] croisement1X(Chromosome p1, Chromosome p2) {
         int nbGenes = p1.getSize();
         Chromosome c1 = p1.clone();
         Chromosome c2 = p2.clone();
+        int[] c1Genes1 = c1.copyGenes();
+        int[] c1Genes = c1.copyGenes();
+        int[] c2Genes = c2.copyGenes();
 
         int point = Utils.rand_int(nbGenes);
 
         for (int i=point+1; i<nbGenes; i++) {
-            c1.getGenes()[i] = p2.copyGenes()[i];
+            c1Genes[i] = c2Genes[i];
         }
 
         for (int i=point+1; i<nbGenes; i++) {
-            c2.getGenes()[i] = p1.copyGenes()[i];
+            c2Genes[i] = c1Genes1[i];
         }
+
+        c1.setGenes(c1Genes);
+        c2.setGenes(c2Genes);
 
         Chromosome[] res = new Chromosome[2];
         res[0] = c1;
@@ -142,43 +219,5 @@ public class GeneticAlgorithm {
 
         return res;
     }
-
-    /*public static Chromosome[] croisement1X(Chromosome p1, Chromosome p2) {
-        int nbGenes = p1.getSize();
-
-        Chromosome c1 = p1.copier();
-        Chromosome c2 = p2.copier();
-
-        float[] ordre_parent1 = new float[nbGenes];
-        float[] ordre_parent2 = new float[nbGenes];
-
-        for (int i=0; i<nbGenes; i++) {
-            ordre_parent1[p1.getGenes()[i]] = i;
-            ordre_parent2[p2.getGenes()[i]] = i;
-        }
-
-        int point = Random.rand_int(nbGenes);
-
-        System.out.println("Point = " + point);
-
-        for (int k=point+1; k<nbGenes; k++) {
-            for (int l=k+1; l<nbGenes; l++) {
-                if (ordre_parent2[c1.getGenes()[k]] > ordre_parent2[c1.getGenes()[l]]) {
-                    System.out.println("Here");
-                    c1.echange2genes(k, l);
-                }
-                if (ordre_parent1[c2.getGenes()[k]] > ordre_parent1[c2.getGenes()[l]]) {
-                    System.out.println("Here");
-                    c2.echange2genes(k, l);
-                }
-            }
-        }
-
-        Chromosome[] res = new Chromosome[2];
-        res[0] = c1;
-        res[1] = c2;
-
-        return res;
-    }*/
 
 }

@@ -38,7 +38,7 @@ public class Utils {
             }
 
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            System.err.println("Impossible d'ouvrir le fichier distances");
         }
 
 
@@ -66,7 +66,7 @@ public class Utils {
             }
 
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            System.err.println("Impossible d'ouvrir le fichier missions");
         }
 
         return missions;
@@ -93,7 +93,7 @@ public class Utils {
             }
 
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            System.err.println("Impossible d'ouvrir le fichier intervenants");
         }
 
         return intervenants;
