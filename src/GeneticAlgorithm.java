@@ -20,6 +20,12 @@ public class GeneticAlgorithm {
     private List<Mission> missions;
     private List<Intervenant> intervenants;
 
+    /**
+     *
+     * @param nombreMissions
+     * @param nombreIntervenants
+     * @param tempsExecution
+     */
     public GeneticAlgorithm(int nombreMissions, int nombreIntervenants, int tempsExecution) {
         nbGenerations = 150000;
         taillePop = 100;
@@ -38,6 +44,10 @@ public class GeneticAlgorithm {
         population = new Population(taillePop, tailleChromosome, nombreIntervenants, missions, intervenants, distances);
     }
 
+    /**
+     *
+     * @return
+     */
     public Chromosome optimiser() {
         int amelioration = 0;
         int nbEnfantsNonValides = 0;
@@ -114,7 +124,6 @@ public class GeneticAlgorithm {
 
                 if (population.getIndividus()[population.getOrdre()[0]].getFitness() < meilleurFitness) {
                     meilleurFitness = population.getIndividus()[population.getOrdre()[0]].getFitness();
-                    System.out.println("Amélioration de la meilleure solution à la génération " + i + " : " + meilleurFitness + " pénalités " + population.getIndividus()[population.getOrdre()[0]].contrainteSouple());
                     amelioration = i;
                 }
             }
@@ -191,7 +200,12 @@ public class GeneticAlgorithm {
         return solutionsTroisiemeCritere.get(0);
     }
 
-
+    /**
+     *
+     * @param p1
+     * @param p2
+     * @return
+     */
     public static Chromosome[] croisement1X(Chromosome p1, Chromosome p2) {
         int nbGenes = p1.getSize();
         Chromosome c1 = p1.clone();

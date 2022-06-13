@@ -3,13 +3,22 @@ import java.util.Scanner;
 
 public class Project {
     public static void main(String[] args) {
+        int nbMissions,nbIntervenants;
+
         Scanner sc = new Scanner(System.in);
-        System.out.print("Nombre de missions : ");
-        int nbMissions = sc.nextInt();
-        System.out.print("Nombre d'intervenants : ");
-        int nbIntervenants = sc.nextInt();
-        System.out.print("Temps d'éxécution (en secondes) : ");
-        int tempsExecution = sc.nextInt();
+        do {
+            System.out.print("Nombre de missions : ");
+            nbMissions = sc.nextInt();
+            System.out.print("Nombre d'intervenants : ");
+            nbIntervenants = sc.nextInt();
+        } while (!(((nbIntervenants == 4) && (nbMissions ==45)) || ((nbIntervenants==6 ) && (nbMissions ==96)) ||( (nbIntervenants==10)  && (nbMissions ==100))));
+
+        int tempsExecution;
+        do {
+            System.out.print("Temps d'éxécution (en milisecondes) : ");
+            tempsExecution = (int)sc.nextInt();
+        }while (!(tempsExecution>2 && tempsExecution < 1000000000));
+
 
 
 

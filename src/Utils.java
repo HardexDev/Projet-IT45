@@ -14,6 +14,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Utils {
+    /**
+     *
+     * @param nomFichier
+     * @param nombreMissions
+     * @return
+     */
     public static double[][] constructionDistance(String nomFichier, int nombreMissions) {
         double[][] res = new double[nombreMissions+1][nombreMissions+1];
 
@@ -45,6 +51,11 @@ public class Utils {
         return res;
     }
 
+    /**
+     *
+     * @param nomFichier
+     * @return
+     */
     public static List<Mission> constructionMissions(String nomFichier) {
         List<Mission> missions = new ArrayList<>();
         Path pathToFile = Paths.get(nomFichier);
@@ -72,6 +83,11 @@ public class Utils {
         return missions;
     }
 
+    /**
+     *
+     * @param nomFichier
+     * @return
+     */
     public static List<Intervenant> constructionIntervenants(String nomFichier) {
         List<Intervenant> intervenants = new ArrayList<>();
         Path pathToFile = Paths.get(nomFichier);
@@ -99,6 +115,11 @@ public class Utils {
         return intervenants;
     }
 
+    /**
+     *
+     * @param values
+     * @return
+     */
     public static double calculerEcartType(double[] values) {
         double moyenneHeuresSup = Arrays.stream(values).sum() / values.length;
         double ecartTypeHeuresSup = 0;
@@ -110,11 +131,22 @@ public class Utils {
         return Math.sqrt(ecartTypeHeuresSup/values.length);
     }
 
+    /**
+     *
+     * @param borne
+     * @return
+     */
     public static int rand_int(int borne) {
         java.util.Random rand = new java.util.Random();
         return rand.nextInt(borne);
     }
 
+    /**
+     *
+     * @param a
+     * @param b
+     * @return
+     */
     public static int rand_in_bounds(int a, int b) {
         java.util.Random rand = new java.util.Random();
         return rand.nextInt(b-a) + a;

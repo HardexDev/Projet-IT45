@@ -22,7 +22,15 @@ public class Chromosome implements Cloneable {
 
     private ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions;
 
-
+    /**
+     *
+     * @param genes
+     * @param size
+     * @param nbIntervenants
+     * @param missions
+     * @param intervenants
+     * @param distances
+     */
     public Chromosome(int[] genes, int size, int nbIntervenants, List<Mission> missions, List<Intervenant> intervenants, double[][] distances) {
         this.genes = genes;
         this.size = size;
@@ -35,6 +43,14 @@ public class Chromosome implements Cloneable {
         this.distances = distances;
     }
 
+    /**
+     *45
+     * @param tailleChromosome
+     * @param nbIntervenants
+     * @param missions
+     * @param intervenants
+     * @param distances
+     */
     public Chromosome(int tailleChromosome, int nbIntervenants, List<Mission> missions, List<Intervenant> intervenants, double[][] distances) {
         size = tailleChromosome;
         genes = new int[tailleChromosome];
@@ -49,14 +65,24 @@ public class Chromosome implements Cloneable {
         ordreMissions = ordreMission(this.genes, missions);
     }
 
+    /**
+     *
+     */
     public void updateOrdreMissions() {
         ordreMissions = ordreMission(this.genes, missions);
     }
 
+    /**
+     *
+     * @return
+     */
     public float evaluateFitnessEmployee() {
         return 0f;
     }
 
+    /**
+     *
+     */
     public void afficher() {
         for (int i=0; i<genes.length; i++) {
             System.out.print(genes[i] + " ");
@@ -66,6 +92,9 @@ public class Chromosome implements Cloneable {
         System.out.println();
     }
 
+    /**
+     *
+     */
     public void afficherDetails() {
         ArrayList<ArrayList<ArrayList<Integer>>> missionsParJour = ordreMission(this.genes, missions);
 
@@ -83,6 +112,11 @@ public class Chromosome implements Cloneable {
         }
     }
 
+    /**
+     *
+     * @param indexA
+     * @param indexB
+     */
     public void echange2genes(int indexA, int indexB) {
         int temp = genes[indexA];
         genes[indexA] = genes[indexB];
@@ -90,6 +124,10 @@ public class Chromosome implements Cloneable {
 
     }
 
+    /**
+     *
+     * @return
+     */
     public double evaluerPremierCritere() {
 
         // Calcul des constantes
@@ -174,6 +212,10 @@ public class Chromosome implements Cloneable {
         return fitness;
     }
 
+    /**
+     *
+     * @return
+     */
     public double evaluerDeuxiemeCritere() {
         double alpha=100.0/size;
         int compteur=0;
@@ -188,6 +230,11 @@ public class Chromosome implements Cloneable {
 
         return fitness;
     }
+
+    /**
+     *
+     * @return
+     */
     public double evaluerTroisiemeCritere() {
         int sumWOH=0;
         double Beta=100.0/45;
@@ -242,6 +289,12 @@ public class Chromosome implements Cloneable {
         return fitness;
     }
 
+    /**
+     *
+     * @param distances
+     * @param missions
+     * @return
+     */
     private double[] distancesParIntervenant(double[][] distances, List<Mission> missions) {
         double[] res = new double[nbIntervenants];
 
@@ -261,6 +314,12 @@ public class Chromosome implements Cloneable {
         return res;
     }
 
+    /**
+     *
+     * @param arr
+     * @param missions
+     * @return
+     */
     private ArrayList<ArrayList<ArrayList<Integer>>> ordreMission(int[] arr, List<Mission> missions) {
         ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = new ArrayList<>();
 
@@ -307,6 +366,10 @@ public class Chromosome implements Cloneable {
         return ordreMissions;
     }
 
+    /**
+     *
+     * @return
+     */
     private int[] contruireSolutionValide() {
         int[] res = new int[size];
 
@@ -339,30 +402,13 @@ public class Chromosome implements Cloneable {
             }
 
         }
-
-/*        System.out.println(Arrays.toString(res));
-
-        ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(res, missions);
-
-        for (int i=0; i<nbIntervenants; i++) {
-            for (int j=0; j<5; j++) {
-                ArrayList<Integer> currentListeMissions = ordreMissions.get(i).get(j);
-                for (int k=0; k<currentListeMissions.size()-1; k++) {
-                    while (missions.get(currentListeMissions.get(k)).getHeure_fin() >= missions.get(currentListeMissions.get(k+1)).getHeure_debut()) {
-                        System.out.println("Here");
-                        res[currentListeMissions.get(k)] = Utils.rand_in_bounds(i+1, nbIntervenants) + 1;
-                        System.out.println(res[currentListeMissions.get(k)]);
-                        ordreMissions = ordreMission(res, missions);
-                        currentListeMissions = ordreMissions.get(i).get(j);
-                        k=0;
-                    }
-                }
-            }
-        }*/
-
         return res;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean estValide() {
 
         // Vérifier que les missions sont bien assignées à des intervenants ayant la même compétence
@@ -419,7 +465,10 @@ public class Chromosome implements Cloneable {
         this.genes = Arrays.copyOf(genes, genes.length);
     }
 
-
+    /**
+     *
+     * @return
+     */
     @Override
     public Chromosome clone() {
         try {
@@ -438,6 +487,10 @@ public class Chromosome implements Cloneable {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public int contrainteSouple(){
         int penalite=0;
         int missionIndex, intervenantIndex;
@@ -607,6 +660,10 @@ public class Chromosome implements Cloneable {
         return penalite;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public String toString() {
         return Arrays.toString(genes);
