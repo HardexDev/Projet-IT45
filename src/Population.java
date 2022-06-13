@@ -1,3 +1,6 @@
+import entities.Intervenant;
+import entities.Mission;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -10,17 +13,25 @@ public class Population {
     private int[] ordre;
     private int size;
 
+    private List<Mission> missions;
+    private List<Intervenant> intervenants;
+    private double[][] distances;
+
     public Population(Chromosome[] individus, int size) {
         this.individus = individus;
         this.size = size;
         ordre = new int[individus.length];
     }
 
-    public Population(int taillePop, int tailleChromosome, int nbIntervenants) {
+    public Population(int taillePop, int tailleChromosome, int nbIntervenants, List<Mission> missions, List<Intervenant> intervenants, double[][] distances) {
         individus = new Chromosome[taillePop];
         size = taillePop;
+        this.missions = missions;
+        this.intervenants = intervenants;
+        this.distances = distances;
+
         for (int i=0; i<individus.length; i++) {
-            individus[i] = new Chromosome(tailleChromosome, nbIntervenants);
+            individus[i] = new Chromosome(tailleChromosome, nbIntervenants, missions, intervenants, distances);
         }
         ordre = new int[individus.length];
     }
@@ -124,6 +135,22 @@ public class Population {
         }
     }
 
+    public int nombreIndividusEgaux() {
+        int res = 0;
+        for (Chromosome c : individus) {
+            for (Chromosome c2 : individus) {
+                if (c2 != c) {
+                    if (Arrays.equals(c.getGenes(), c2.getGenes())) {
+                        res++;
+                    }
+                }
+
+            }
+        }
+
+        return res;
+    }
+
     public Chromosome[] getIndividus() {
         return individus;
     }
@@ -134,5 +161,9 @@ public class Population {
 
     public int getSize() {
         return size;
+    }
+
+    public void setIndividus(Chromosome[] individus) {
+        this.individus = Arrays.copyOf(individus, size);
     }
 }

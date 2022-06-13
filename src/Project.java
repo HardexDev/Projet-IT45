@@ -1,65 +1,27 @@
-import entities.Intervenant;
-import entities.Mission;
-
 import java.util.Arrays;
-import java.util.List;
+import java.util.Scanner;
 
 public class Project {
     public static void main(String[] args) {
-        /*Population population = new Population(5, 40, 4);
-        population.afficher();*/
-        double start = System.currentTimeMillis();
-
-        GeneticAlgorithm ga = new GeneticAlgorithm(45, 4);
-
-
-        /*Chromosome c = new Chromosome(45, 4);
-        c.afficher();
-        System.out.println("Solution valide : " + c.estValide());
-        c.afficherDetails();
-
-        c.evaluerPremierCritere();
-//
-        System.out.println("Fitness = " + c.getFitness());
-        System.out.println("Pénalités à ajouter = " + c.contrainteSouple());*/
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Nombre de missions : ");
+        int nbMissions = sc.nextInt();
+        System.out.print("Nombre d'intervenants : ");
+        int nbIntervenants = sc.nextInt();
+        System.out.print("Temps d'éxécution (en secondes) : ");
+        int tempsExecution = sc.nextInt();
 
 
-//        while (!c.estValide()) {
-//            c = new Chromosome(45, 4);
-//            c.afficher();
-//            System.out.println("Solution valide : " + c.estValide());
-//
-//            c.evaluerPremierCritere();
-//
-//            System.out.println("Fitness = " + c.getFitness());
-//        }
+
+        GeneticAlgorithm ga = new GeneticAlgorithm(nbMissions, nbIntervenants, tempsExecution);
+
         Chromosome best = ga.optimiser();
+        System.out.println();
         best.afficherDetails();
-        System.out.println(best.getFitness());
-        double stop = System.currentTimeMillis();
-        double diff = stop - start;
-        System.out.println("Temps exex i++ : " + diff);
-        /*List<Mission> missions = ga.constructionMissions("src/instances/Missions.csv");
-        System.out.println(Arrays.toString(missions.toArray()));
-
-        List<Intervenant> intervenants = ga.constructionIntervenants("src/instances/Intervenants.csv");
-        System.out.println(Arrays.toString(intervenants.toArray()));*/
-
-
-        /*Chromosome c1 = new Chromosome(10, 3);
-        Chromosome c2 = new Chromosome(10, 3);
-
-        c1.afficher();
-        c2.afficher();
-
-        System.out.println("Nous allons croiser ces deux gènes avec la méthode 1X");
-
-        Chromosome[] fils = GeneticAlgorithm.croisement1X(c1, c2);
-        System.out.print("Fils 1 : ");
-        fils[0].afficher();
-
-        System.out.print("Fils 2 : ");
-        fils[1].afficher();*/
+        System.out.println();
+        System.out.println("Fitness 1 : " + best.evaluerPremierCritere());
+        System.out.println("Fitness 2 : " + best.evaluerDeuxiemeCritere());
+        System.out.println("Fitness 3 : " + best.evaluerTroisiemeCritere());
 
     }
 }
