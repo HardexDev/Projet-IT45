@@ -138,25 +138,15 @@ public class Chromosome implements Cloneable {
 
         double constanteQuota = 100 / moyenneQuota;
 
-        // System.out.println(constanteQuota);
-
         double constanteHeuresSupTolerees = 100.0 / 10;
-
-        // System.out.println(constanteHeuresSupTolerees);
 
         double totalDistances = 0;
         for (int i=0; i < distances.length-1; i++) {
             totalDistances += distances[0][i+1] + distances[i+1][0];
         }
-
-
         double moyenne = (totalDistances / (double) intervenants.size());
 
-        // System.out.println(moyenne);
-
         double constanteMoyenneDistances = 100.0 / (totalDistances / (double) intervenants.size());
-
-        // System.out.println(constanteMoyenneDistances);
 
         double[] heuresTravaillees = new double[intervenants.size()];
 
@@ -181,11 +171,7 @@ public class Chromosome implements Cloneable {
             heuresSup[i] = (heuresTravaillees[i] - intervenants.get(i).getQuota()) > 0 ? (heuresTravaillees[i] - intervenants.get(i).getQuota()) : 0;
         }
 
-        // System.out.println("heures Travaillées : " + Arrays.toString(heuresTravaillees));
-        // System.out.println("heures sup : " + Arrays.toString(heuresSup));
-
         double ecartTypeHeuresSup = Utils.calculerEcartType(heuresSup);
-        // System.out.println("Ecart-type heures sup : " + ecartTypeHeuresSup);
 
         // Calculer l'écart-type des heures non-travaillées
         double[] heuresNonTravaillees = new double[intervenants.size()];
@@ -196,13 +182,7 @@ public class Chromosome implements Cloneable {
 
         double ecartTypeHeureNonTravaillees = Utils.calculerEcartType(heuresNonTravaillees);
 
-        // System.out.println("Heures Non Travaillées : " + Arrays.toString(heuresNonTravaillees));
-        // System.out.println("Ecart type heures non travaillées : " + ecartTypeHeureNonTravaillees);
-
         double ecartTypeDistances = Utils.calculerEcartType(distancesParIntervenant);
-
-        // System.out.println("Distances par intervenant : " + Arrays.toString(distancesParIntervenant));
-        // System.out.println("Ecart-type distances : " + ecartTypeDistances);
 
         // On met à jour le fitness de la solution et on ajoute les éventuelles pénalités des contraintes souples
         fitness = fitness1 = ((constanteQuota*ecartTypeHeureNonTravaillees + constanteHeuresSupTolerees*ecartTypeHeuresSup + constanteMoyenneDistances*ecartTypeDistances)/3.0) + contrainteSouple();
@@ -544,7 +524,6 @@ public class Chromosome implements Cloneable {
                 }
 
                 if (!tempsSuffisantAMidi) {
-                    // System.out.println("Intervenant " + (i+1) + " Jour " + (j+1) + " temps pas suffisant le midi");
                     penalite += 5;
                 }
 

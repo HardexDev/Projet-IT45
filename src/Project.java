@@ -3,19 +3,20 @@ import java.util.Scanner;
 
 public class Project {
     public static void main(String[] args) {
-        int nbMissions,nbIntervenants;
+        int nbMissions =45 ,nbIntervenants =4, tempsExecution =30000;
 
-        // vérification des entrées
-        Scanner sc = new Scanner(System.in);
-        do {
-            System.out.print("Nombre de missions : ");
-            nbMissions = sc.nextInt();
-            System.out.print("Nombre d'intervenants : ");
-            nbIntervenants = sc.nextInt();
-        } while (!(((nbIntervenants == 4) && (nbMissions ==45)) || ((nbIntervenants==6 ) && (nbMissions ==96)) ||( (nbIntervenants==10)  && (nbMissions ==100))));
+//         vérification des entrées
+//        Scanner sc = new Scanner(System.in);
+//        do {
+//            System.out.print("Nombre de missions : ");
+//            nbMissions = sc.nextInt();
+//            System.out.print("Nombre d'intervenants : ");
+//            nbIntervenants = sc.nextInt();
+//        } while (!(((nbIntervenants == 4) && (nbMissions ==45)) || ((nbIntervenants==6 ) && (nbMissions ==96)) ||( (nbIntervenants==10)  && (nbMissions ==100))));
+//
+//        System.out.print("Temps d'éxécution (en milisecondes) : ");
+//        int tempsExecution = sc.nextInt();
 
-        System.out.print("Temps d'éxécution (en milisecondes) : ");
-        int tempsExecution = sc.nextInt();
 
 
 

@@ -27,10 +27,10 @@ public class GeneticAlgorithm {
      * @param tempsExecution
      */
     public GeneticAlgorithm(int nombreMissions, int nombreIntervenants, int tempsExecution) {
-        nbGenerations = 150000;
-        taillePop = 100;
+        nbGenerations = 50000;
+        taillePop =50;
         tauxCroisement = 0.8;
-        tauxMutation = 0.3;
+        tauxMutation = 0.75;
         tailleChromosome = nombreMissions;
         this.nombreIntervenants = nombreIntervenants;
         this.nombreMissions = nombreMissions;
@@ -128,7 +128,9 @@ public class GeneticAlgorithm {
                 }
             }
 
-            g++;
+
+
+          g++;
 
             solutionsPremierCritere.add(population.getIndividus()[population.getOrdre()[0]]);
             population = new Population(taillePop, tailleChromosome, nombreIntervenants, missions, intervenants, distances);
