@@ -18,7 +18,7 @@ public class Population {
     private double[][] distances;
 
     /**
-     *
+     * constructeur
      * @param individus
      * @param size
      */
@@ -29,7 +29,7 @@ public class Population {
     }
 
     /**
-     *
+     * constructeur
      * @param taillePop
      * @param tailleChromosome
      * @param nbIntervenants
@@ -51,7 +51,7 @@ public class Population {
     }
 
     /**
-     *
+     * fonction de tri de la population en fonction des fitness
      */
     public void ordonner() {
         int inter;
@@ -68,7 +68,7 @@ public class Population {
     }
 
     /**
-     *
+     * fonction de tri de la population en fonction des fitness, utiliser apres avoir utiliser ordonner()
      */
     public void reordonner() {
         int inter;
@@ -83,8 +83,8 @@ public class Population {
     }
 
     /**
-     *
-     * @return
+     * fonction qui permet l'insertion des enfants des croisements dans la population
+     * @return individus[ind] : le choix de l'individu a remplacer
      */
     public Chromosome selectionRoulette() {
         double somme_fitness = individus[0].getFitness();
@@ -115,7 +115,7 @@ public class Population {
     }
 
     /**
-     *
+     * fonction qui permet de remplacer l'invidu choisi par la selection roulette dans la population
      * @param individu
      */
     public void remplacementRoulette(Chromosome individu) {
@@ -143,6 +143,9 @@ public class Population {
         individus[ind].setFitness(individu.getFitness());
     }
 
+    /**
+     * fonction qui permet d'afficher la population
+     */
     public void afficher() {
         for (int i=0; i<individus.length; i++) {
             individus[i].afficher();
@@ -150,8 +153,8 @@ public class Population {
     }
 
     /**
-     *
-     * @return
+     * fonction qui compte les individus egaux
+     * @return res : le nombre d'individus egaux
      */
     public int nombreIndividusEgaux() {
         int res = 0;

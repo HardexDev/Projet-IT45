@@ -21,7 +21,7 @@ public class GeneticAlgorithm {
     private List<Intervenant> intervenants;
 
     /**
-     *
+     *constructeur
      * @param nombreMissions
      * @param nombreIntervenants
      * @param tempsExecution
@@ -45,8 +45,8 @@ public class GeneticAlgorithm {
     }
 
     /**
-     *
-     * @return
+     * fonction qui execute l'algorithme genetique avec le premier critere puis filtre les solution avec le second puis le troisieme critere
+     * @return solutionsTroisiemeCritere.get(0)
      */
     public Chromosome optimiser() {
         int amelioration = 0;
@@ -201,10 +201,10 @@ public class GeneticAlgorithm {
     }
 
     /**
-     *
+     * fonction qui effectue un croisement en un point
      * @param p1
      * @param p2
-     * @return
+     * @return res: un tableau des deux chromosomes fils
      */
     public static Chromosome[] croisement1X(Chromosome p1, Chromosome p2) {
         int nbGenes = p1.getSize();
@@ -214,7 +214,7 @@ public class GeneticAlgorithm {
         int[] c1Genes = c1.copyGenes();
         int[] c2Genes = c2.copyGenes();
 
-        int point = Utils.rand_int(nbGenes);
+        int point = Utils.rand_int(nbGenes);    //point du croisement choisi aleatoirement
 
         for (int i=point+1; i<nbGenes; i++) {
             c1Genes[i] = c2Genes[i];

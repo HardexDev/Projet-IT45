@@ -5,6 +5,7 @@ public class Project {
     public static void main(String[] args) {
         int nbMissions,nbIntervenants;
 
+        // vérification des entrées
         Scanner sc = new Scanner(System.in);
         do {
             System.out.print("Nombre de missions : ");
@@ -13,12 +14,8 @@ public class Project {
             nbIntervenants = sc.nextInt();
         } while (!(((nbIntervenants == 4) && (nbMissions ==45)) || ((nbIntervenants==6 ) && (nbMissions ==96)) ||( (nbIntervenants==10)  && (nbMissions ==100))));
 
-        int tempsExecution;
-        do {
-            System.out.print("Temps d'éxécution (en milisecondes) : ");
-            tempsExecution = (int)sc.nextInt();
-        }while (!(tempsExecution>2 && tempsExecution < 1000000000));
-
+        System.out.print("Temps d'éxécution (en milisecondes) : ");
+        int tempsExecution = sc.nextInt();
 
 
 

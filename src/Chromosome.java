@@ -23,7 +23,7 @@ public class Chromosome implements Cloneable {
     private ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions;
 
     /**
-     *
+     * constructeur
      * @param genes
      * @param size
      * @param nbIntervenants
@@ -44,7 +44,7 @@ public class Chromosome implements Cloneable {
     }
 
     /**
-     *45
+     *constructeur
      * @param tailleChromosome
      * @param nbIntervenants
      * @param missions
@@ -66,34 +66,32 @@ public class Chromosome implements Cloneable {
     }
 
     /**
-     *
+     * fonction de mise a jour de l'odre des missions
      */
     public void updateOrdreMissions() {
         ordreMissions = ordreMission(this.genes, missions);
     }
 
     /**
-     *
-     * @return
+     * fonction d'evaluation du fistness d'un employe
+     * @return 0f
      */
     public float evaluateFitnessEmployee() {
         return 0f;
     }
 
     /**
-     *
+     * fonction qui permet l'affichage du tableau des genes du chromosome
      */
     public void afficher() {
         for (int i=0; i<genes.length; i++) {
             System.out.print(genes[i] + " ");
         }
-
-
         System.out.println();
     }
 
     /**
-     *
+     * fonction qui permet l'affichage final de la solution
      */
     public void afficherDetails() {
         ArrayList<ArrayList<ArrayList<Integer>>> missionsParJour = ordreMission(this.genes, missions);
@@ -113,7 +111,7 @@ public class Chromosome implements Cloneable {
     }
 
     /**
-     *
+     * fonction qui permet d'echanger deux genes dans le tableau genes
      * @param indexA
      * @param indexB
      */
@@ -125,8 +123,8 @@ public class Chromosome implements Cloneable {
     }
 
     /**
-     *
-     * @return
+     * fonction d'evaluation du premier critere
+     * @return fitness: le fitness de la solution
      */
     public double evaluerPremierCritere() {
 
@@ -213,8 +211,8 @@ public class Chromosome implements Cloneable {
     }
 
     /**
-     *
-     * @return
+     * fonction d'evaluation du deuxieme critere
+     * @return fitness: le fitness de la solution
      */
     public double evaluerDeuxiemeCritere() {
         double alpha=100.0/size;
@@ -232,8 +230,8 @@ public class Chromosome implements Cloneable {
     }
 
     /**
-     *
-     * @return
+     * fonction d'evaluation du troisieme critere
+     * @return fitness: le fitness de la solution
      */
     public double evaluerTroisiemeCritere() {
         int sumWOH=0;
@@ -290,10 +288,10 @@ public class Chromosome implements Cloneable {
     }
 
     /**
-     *
+     * fonction qui calcule la distance parcourue par chaque intervenant durant la semaine
      * @param distances
      * @param missions
-     * @return
+     * @return res : tableau des distances
      */
     private double[] distancesParIntervenant(double[][] distances, List<Mission> missions) {
         double[] res = new double[nbIntervenants];
@@ -315,10 +313,10 @@ public class Chromosome implements Cloneable {
     }
 
     /**
-     *
+     * fonction qui construit le tableau composé de tableaux representatn chaque intervenant compose de tableau representant les jours de la semaine
      * @param arr
      * @param missions
-     * @return
+     * @return ordreMission le tableau
      */
     private ArrayList<ArrayList<ArrayList<Integer>>> ordreMission(int[] arr, List<Mission> missions) {
         ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = new ArrayList<>();
@@ -367,8 +365,8 @@ public class Chromosome implements Cloneable {
     }
 
     /**
-     *
-     * @return
+     * fonction permettant la construction des chromosomes de la premiere population
+     * @return res : tableau qui represente un chromosome (equivalent a au tableau genes)
      */
     private int[] contruireSolutionValide() {
         int[] res = new int[size];
@@ -384,20 +382,6 @@ public class Chromosome implements Cloneable {
                 } else {
                     stop = true;
                     res[i] = randIntervenant;
-                    /*ArrayList<ArrayList<ArrayList<Integer>>> ordreMissions = ordreMission(res, missions);
-                    ArrayList<Integer> currentListeMissions = ordreMissions.get(randIntervenant-1).get(missions.get(i).getJour()-1);
-                    if (currentListeMissions.size() >= 1) {
-                        int derniereMission = currentListeMissions.get(currentListeMissions.size()-1);
-                        if (missions.get(derniereMission).getHeure_fin() >= missions.get(i).getHeure_debut()) {
-                            stop = false;
-                            randIntervenant = rand.nextInt(nbIntervenants) + 1;
-                        } else {
-                            res[i] = randIntervenant;
-                        }
-                    } else {
-                        res[i] = randIntervenant;
-                    }*/
-
                 }
             }
 
@@ -406,8 +390,8 @@ public class Chromosome implements Cloneable {
     }
 
     /**
-     *
-     * @return
+     * fonction de verification de la validite d'un chromosome (une solution)
+     * @return true ou false
      */
     public boolean estValide() {
 
@@ -466,8 +450,8 @@ public class Chromosome implements Cloneable {
     }
 
     /**
-     *
-     * @return
+     * fonction qui permet de copier un chromosome
+     * @return clone: le clone
      */
     @Override
     public Chromosome clone() {
@@ -488,8 +472,8 @@ public class Chromosome implements Cloneable {
     }
 
     /**
-     *
-     * @return
+     * fonction qui permet la verification des contraintes souples
+     * @return penalite : la valeur des penalites du chromosome
      */
     public int contrainteSouple(){
         int penalite=0;
@@ -660,10 +644,6 @@ public class Chromosome implements Cloneable {
         return penalite;
     }
 
-    /**
-     *
-     * @return
-     */
     @Override
     public String toString() {
         return Arrays.toString(genes);

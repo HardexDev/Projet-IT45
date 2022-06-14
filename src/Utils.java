@@ -15,10 +15,10 @@ import java.util.List;
 
 public class Utils {
     /**
-     *
+     * fonction qui permet la construction du tableau des distances grace a un fichier .csv
      * @param nomFichier
      * @param nombreMissions
-     * @return
+     * @return res : le tableau des distances
      */
     public static double[][] constructionDistance(String nomFichier, int nombreMissions) {
         double[][] res = new double[nombreMissions+1][nombreMissions+1];
@@ -52,9 +52,9 @@ public class Utils {
     }
 
     /**
-     *
+     * fonction qui permet la construction du tableau des missions grace a un fichier .csv
      * @param nomFichier
-     * @return
+     * @return mission : le tableau des missions
      */
     public static List<Mission> constructionMissions(String nomFichier) {
         List<Mission> missions = new ArrayList<>();
@@ -84,9 +84,9 @@ public class Utils {
     }
 
     /**
-     *
+     * fonction qui permet la construction du tableau des intervenants grace a un fichier .cs
      * @param nomFichier
-     * @return
+     * @return intervenants : le tableau des intervenants
      */
     public static List<Intervenant> constructionIntervenants(String nomFichier) {
         List<Intervenant> intervenants = new ArrayList<>();
@@ -116,9 +116,9 @@ public class Utils {
     }
 
     /**
-     *
+     * fonction qui permet de calculet l'ecart-type
      * @param values
-     * @return
+     * @return l'ecart-type
      */
     public static double calculerEcartType(double[] values) {
         double moyenneHeuresSup = Arrays.stream(values).sum() / values.length;
@@ -132,9 +132,9 @@ public class Utils {
     }
 
     /**
-     *
+     * fonction qui genere un entier aleatoire
      * @param borne
-     * @return
+     * @return un entier aleatoire
      */
     public static int rand_int(int borne) {
         java.util.Random rand = new java.util.Random();
@@ -142,10 +142,10 @@ public class Utils {
     }
 
     /**
-     *
+     * fonction qui genere un entier aleatoire entre deux valeurs
      * @param a
      * @param b
-     * @return
+     * @return un entier aleatoire
      */
     public static int rand_in_bounds(int a, int b) {
         java.util.Random rand = new java.util.Random();
